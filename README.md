@@ -1,1 +1,1 @@
-# Zu-shi.github.io
+# zu-shi.github.io
