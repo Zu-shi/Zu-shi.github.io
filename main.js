@@ -219,7 +219,7 @@ function RedrawBackground(c)
 }
 
 
-let speed = 0.06;
+let speed = 0.045;
 
 let unity_current_pos_x = 0;
 let unity_current_pos_y = 0;
