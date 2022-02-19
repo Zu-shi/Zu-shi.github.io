@@ -39,6 +39,18 @@
     z-index: 1;
 }
 
+#scrollbox
+{
+	content: '.';
+    margin: 0;
+    padding: 0;
+}
+
+#canvas
+{
+	position:absolute;
+}
+
 body
 {
 	/*background-color:rgba(10,12,14,1);*/
