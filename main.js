@@ -238,12 +238,12 @@ function DrawReorderingArea(c)
 	// Get distance
 
 	var mouse = getMousePosition(cachedEvent);
-	if (IsInBox(c, mouse.x, mouse.y))
+	if (IsInBox(c, mouse_current_pos_x, mouse_current_pos_y))
 	{
 		cached_event_ordering = []
 		for (let i = 0; i < Events.length; i++)
 		{
-			var normalizedPos = GetNormalizedsFromBoxCoords(c, mouse.x, mouse.y);
+			var normalizedPos = GetNormalizedsFromBoxCoords(c, mouse_current_pos_x, mouse_current_pos_y);
 			var unityPosX = normalizedPos.x * unity_width
 			var unityPosY = normalizedPos.y * unity_height
 			cached_event_ordering.push({index: i, distance: GetDistance(Events[i]["X"] * event_coords_ratio, Events[i]["Y"] * event_coords_ratio, unityPosX, unityPosY)});
@@ -260,8 +260,11 @@ function DrawReorderingArea(c)
 			//ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";
 			ctx.font = "lighter " + font_size + "px Gabriola";
 			ctx.fillStyle = "#eeeeee";
-			ctx.fillText(Events[cached_event_ordering[i]["index"]]["Name"], centering_location_x - ctx.measureText(Events[cached_event_ordering[i]["index"]]["Name"]).width / 2, starty);
-			starty += (font_size * 2);		
+			var measureText = ctx.measureText(Events[cached_event_ordering[i]["index"]]["Name"]);
+			ctx.fillText(Events[cached_event_ordering[i]["index"]]["Name"], 
+				centering_location_x - measureText.width / 2, 
+				starty);
+			starty += (font_size * 1.5);		
 		}
 
 		ctx.globalAlpha = 1;
@@ -309,29 +312,37 @@ function RedrawBackground(c)
 	DrawReorderingArea(c)
 }
 
-let unity_move_speed = 0.03;
+let unity_move_speed = 0.035;
 
 let unity_current_pos_x = 0;
 let unity_current_pos_y = 0;
 let unity_target_pos_x = 0;
 let unity_target_pos_y = 0;
 
+
+let mouse_current_pos_x = 0;
+let mouse_current_pos_y = 0;
+let mouse_target_pos_x = 0;
+let mouse_target_pos_y = 0;
+
 let text_move_speed = 0;
 
 
 function animate(){
 	// console.log("animation");
-	let distX = unity_target_pos_x - unity_current_pos_x;
-	let distY = unity_target_pos_y - unity_current_pos_y;
+	let distX = mouse_target_pos_x - mouse_current_pos_x;
+	let distY = mouse_target_pos_y - mouse_current_pos_y;
 
-	unity_current_pos_x = unity_current_pos_x + (distX * unity_move_speed);
-	unity_current_pos_y = unity_current_pos_y + (distY * unity_move_speed);
+	mouse_current_pos_x = mouse_current_pos_x + (distX * unity_move_speed);
+	mouse_current_pos_y = mouse_current_pos_y + (distY * unity_move_speed);
 
 	// Drawing stuff, consider moving to animation step
 	var c = document.getElementById("canvas");
 	var ctx = c.getContext("2d");
 	ctx.clearRect(0, 0, c.width, c.height);
-	ctx.drawImage(unity, unity_current_pos_x, unity_current_pos_y, unity_width, unity_height);
+	unityPos = getUnityPosition(c, mouse_current_pos_x, mouse_current_pos_y)
+	ctx.drawImage(unity, unityPos.x, unityPos.y, unity_width, unity_height);
+	//console.log(unityPos.x, unityPos.y);
 	RedrawBackground(c);
 
 	requestAnimationFrame(animate);
@@ -364,7 +375,7 @@ function getUnityPosition(c, x, y)
 	if (unity_y > circley - circler - buffer) {unity_y = circley - circler - buffer};
 	if (unity_y + unity_height < circley + circler + buffer) {unity_y = circley + circler - unity_height + buffer}; 
 	*/
-	
+
 	var output = {
 	    x: unity_x,
 	    y: unity_y,
@@ -393,18 +404,18 @@ function onMouseMove(e)
 	cachedEvent = e;
 	// Drawing stuff, consider moving to animation step
 
-	//var ctx = c.getContext("2d");
-	//ctx.clearRect(0, 0, c.width, c.height);
+	var ctx = c.getContext("2d");
+	ctx.clearRect(0, 0, c.width, c.height);
 
 	if (IsInBox(c, x, y))
 	{
-		var result = getUnityPosition(c, x, y);
-		unity_target_pos_x = result.x;
-		unity_target_pos_y = result.y;
+		mouse_target_pos_x = x;
+		mouse_target_pos_y = y;
 	}
 
-	//ctx.drawImage(unity, unity_target_pos_x, unity_target_pos_y, unity_width, unity_height);
-	//RedrawBackground(c);
+	unityPos = getUnityPosition(c, mouse_target_pos_x, mouse_target_pos_y)
+	ctx.drawImage(unity, unityPos.x, unityPos.y, unity_width, unity_height);
+	RedrawBackground(c);
 }
 
 function RedrawCanvas()
