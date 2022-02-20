@@ -51,6 +51,11 @@
 	position:absolute;
 }
 
+@font-face {
+    font-family: 'Gabriola';
+    src: url('Assets\\GABRIOLA.TTF');
+}
+
 body
 {
 	/*background-color:rgba(10,12,14,1);*/

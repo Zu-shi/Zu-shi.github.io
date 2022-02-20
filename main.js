@@ -6,24 +6,6 @@ console.log(Events);
 // start point = 1232x256
 // 3840x2160
 
-/*
-fetch("./Events.json")
-  .then(response => response.json())
-  .then(json => console.log(json));
-
-var xhttp = new XMLHttpRequest();
-xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-        var obj1 = JSON.parse(this.responseText);
-        console.log(obj1);
-    }
-};
-xhttp.open("GET", "./Events.json", true);
-xhttp.send();
-*/
-
-
-
 var web = new Image();
 web.onload = function(){
 	RedrawCanvas();
@@ -54,6 +36,15 @@ unity.onload = function(){
 }
 unity.src = 'Assets\\AAA_We_Are_Unity_(WebP 90_).webp';
 
+/*
+var eventFont = new FontFace('myFont', 'url(Assets\\GABRIOLA.TTF)');
+eventFont.load().then(function(font){
+  // with canvas, if this is ommited won't work
+  document.fonts.add(font);
+  console.log('Font loaded');
+});
+*/
+
 const overall_width = 3840
 const overall_height = 2160
 const overall_startx = 1232
@@ -70,6 +61,10 @@ const unity_height = 4000
 
 const min_width = 1280
 const min_height = 720
+
+let currently_in_box = false
+let reordering_menu_dissapeared = false
+let cached_event_ordering = []
 
 function DrawImage(ctx, img, x, y, width, height)
 {
@@ -111,7 +106,7 @@ function GetMainRegion(c)
 	bodyWidth = c.width;
 
 	var bodyRatio = bodyWidth / bodyHeight;
-	console.log(bodyWidth, bodyHeight);
+	// console.log(bodyWidth, bodyHeight);
 
 
 	// We need to create a scrollbar to use
@@ -186,6 +181,60 @@ function IsInBox(c, x, y)
 	return coords.x > 0 && coords.x < 1 && coords.y > 0 && coords.y < 1;
 }
 
+function DrawScrollArea(c)
+{
+	var ctx = c.getContext("2d");
+	ctx.drawImage(scrollbackground, r.x, r.y, r.width, r.height);
+
+	var ctx = c.getContext("2d");
+	startxy = GetMainRegion(c);
+
+	// Shadow starts at 340
+	// Let font size remain the same
+	const full_start_location_x = 340
+	starty = startxy.y + 30;
+	font_size = 18;
+	starting_location_x = full_start_location_x / overall_width * startxy.width + startxy.x; 
+
+	ctx.globalAlpha = 0.7;
+	for (let i in Events)
+	{
+		//ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";
+		ctx.font = "lighter " + font_size + "px Gabriola";
+		ctx.fillStyle = "#eeeeee";
+		ctx.fillText(Events[i]["Name"], starting_location_x, starty);
+		starty += (font_size * 2);
+	}
+	ctx.globalAlpha = 1;
+}
+
+function DrawReorderingArea(c)
+{
+	var ctx = c.getContext("2d");
+	// ctx.drawImage(scrollbackground, r.x, r.y, r.width, r.height);
+
+	var ctx = c.getContext("2d");
+	startxy = GetMainRegion(c);
+
+	// Shadow starts at 340
+	// Let font size remain the same
+	const full_centering_location_x = 380
+	starty = startxy.y + 30;
+	font_size = 30;
+	centering_location_x = full_centering_location_x / overall_width * startxy.width + startxy.x; 
+
+	ctx.globalAlpha = 0.7;
+	for (let i in Events)
+	{
+		//ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";
+		ctx.font = "lighter " + font_size + "px Gabriola";
+		ctx.fillStyle = "#eeeeee";
+		ctx.fillText(Events[i]["Name"], centering_location_x - ctx.measureText(Events[i]["Name"]).width / 2, starty);
+		starty += (font_size * 2);
+	}
+	ctx.globalAlpha = 1;
+}
+
 function RedrawBackground(c)
 {
 	var ctx = c.getContext("2d");
@@ -194,7 +243,6 @@ function RedrawBackground(c)
 	//ctx.drawImage(web, r.x, r.y, r.width, r.height);
 	ctx.drawImage(decorative, r.x, r.y, r.width, r.height);
 	ctx.drawImage(looking_glass, r.x, r.y, r.width, r.height);
-	ctx.drawImage(scrollbackground, r.x, r.y, r.width, r.height);
 
 	ctx.globalAlpha = 0.5;
 	ctx.fillStyle = "#FF0000";
@@ -218,40 +266,27 @@ function RedrawBackground(c)
 	ctx.stroke();
 	ctx.globalAlpha = 1;
 
-	// Shadow starts at 340
-	// Let font size remain the same
-	const full_start_location_x = 340
-	starty = startxy.y + 30;
-	font_size = 18;
-	starting_location_x = full_start_location_x / overall_width * startxy.width + startxy.x; 
-
-	ctx.globalAlpha = 0.7;
-	for (let i in Events)
-	{
-		//ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";
-		ctx.font = "lighter " + font_size + "px Times New Roman";
-		ctx.fillStyle = "#eeeeee";
-		ctx.fillText(Events[i]["Name"], starting_location_x, starty);
-		starty += (font_size * 2);
-	}
-	ctx.globalAlpha = 1;
+	// DrawScrollArea(c);
+	DrawReorderingArea(c)
 }
 
-
-let speed = 0.045;
+let unity_move_speed = 0.045;
 
 let unity_current_pos_x = 0;
 let unity_current_pos_y = 0;
 let unity_target_pos_x = 0;
 let unity_target_pos_y = 0;
 
+let text_move_speed = 0;
+
+
 function animate(){
-	console.log("animation");
+	// console.log("animation");
 	let distX = unity_target_pos_x - unity_current_pos_x;
 	let distY = unity_target_pos_y - unity_current_pos_y;
 
-	unity_current_pos_x = unity_current_pos_x + (distX * speed);
-	unity_current_pos_y = unity_current_pos_y + (distY * speed);
+	unity_current_pos_x = unity_current_pos_x + (distX * unity_move_speed);
+	unity_current_pos_y = unity_current_pos_y + (distY * unity_move_speed);
 
 	// Drawing stuff, consider moving to animation step
 	var c = document.getElementById("canvas");
