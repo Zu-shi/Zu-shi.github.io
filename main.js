@@ -59,12 +59,17 @@ const circle_radius = 420
 const unity_width = 16295
 const unity_height = 4000
 
+const event_coords_ratio = 0.88186
+
 const min_width = 1280
 const min_height = 720
 
 let currently_in_box = false
 let reordering_menu_dissapeared = false
 let cached_event_ordering = []
+let oddlist = []
+let evenlist = []
+let cachedEvent = {clientX: 0, clientY: 0}
 
 function DrawImage(ctx, img, x, y, width, height)
 {
@@ -208,10 +213,16 @@ function DrawScrollArea(c)
 	ctx.globalAlpha = 1;
 }
 
+function GetDistance(x1, y1, x2, y2)
+{
+	return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+}
+
+let n = 0;
+let m = 0;
+
 function DrawReorderingArea(c)
 {
-	var ctx = c.getContext("2d");
-	// ctx.drawImage(scrollbackground, r.x, r.y, r.width, r.height);
 
 	var ctx = c.getContext("2d");
 	startxy = GetMainRegion(c);
@@ -224,15 +235,43 @@ function DrawReorderingArea(c)
 	centering_location_x = full_centering_location_x / overall_width * startxy.width + startxy.x; 
 
 	ctx.globalAlpha = 0.7;
-	for (let i in Events)
+	// Get distance
+
+	var mouse = getMousePosition(cachedEvent);
+	if (IsInBox(c, mouse.x, mouse.y))
 	{
-		//ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";
-		ctx.font = "lighter " + font_size + "px Gabriola";
-		ctx.fillStyle = "#eeeeee";
-		ctx.fillText(Events[i]["Name"], centering_location_x - ctx.measureText(Events[i]["Name"]).width / 2, starty);
-		starty += (font_size * 2);
+		cached_event_ordering = []
+		for (let i = 0; i < Events.length; i++)
+		{
+			var normalizedPos = GetNormalizedsFromBoxCoords(c, mouse.x, mouse.y);
+			var unityPosX = normalizedPos.x * unity_width
+			var unityPosY = normalizedPos.y * unity_height
+			cached_event_ordering.push({index: i, distance: GetDistance(Events[i]["X"] * event_coords_ratio, Events[i]["Y"] * event_coords_ratio, unityPosX, unityPosY)});
+			if (m % 300 == 0)
+			{
+				console.log(Events[i]["X"], Events[i]["Y"], unityPosX, unityPosY);
+			}
+		}
+
+		cached_event_ordering.sort((a,b) => (a.distance > b.distance) ? 1 : ((a.distance < b.distance) ? -1 : 0))
+
+		for (let i in cached_event_ordering)
+		{
+			//ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";
+			ctx.font = "lighter " + font_size + "px Gabriola";
+			ctx.fillStyle = "#eeeeee";
+			ctx.fillText(Events[cached_event_ordering[i]["index"]]["Name"], centering_location_x - ctx.measureText(Events[cached_event_ordering[i]["index"]]["Name"]).width / 2, starty);
+			starty += (font_size * 2);		
+		}
+
+		ctx.globalAlpha = 1;
+
+		n++;
+		if (n % 30 == 0)
+		{
+			console.log(cached_event_ordering)
+		}
 	}
-	ctx.globalAlpha = 1;
 }
 
 function RedrawBackground(c)
@@ -270,7 +309,7 @@ function RedrawBackground(c)
 	DrawReorderingArea(c)
 }
 
-let unity_move_speed = 0.045;
+let unity_move_speed = 0.03;
 
 let unity_current_pos_x = 0;
 let unity_current_pos_y = 0;
@@ -298,7 +337,7 @@ function animate(){
 	requestAnimationFrame(animate);
 }
 
-
+// Gets the Position of a Mouse Pointer on We Are Unity Native Space
 function getUnityPosition(c, x, y)
 {
 	// We need to get the position of the circle, first we need to calculate the y position in the circle
@@ -318,12 +357,14 @@ function getUnityPosition(c, x, y)
 	var unity_x = circlex + (1 - box.x) * unity_width - unity_width;
 	var unity_y = circley + (1 - box.y) * unity_height - unity_height;
 
+	/*
 	var buffer = 20;
 	if (unity_x > circlex - circler - buffer) {unity_x = circlex - circler - buffer};
 	if (unity_x + unity_width < circlex + circler + buffer) {unity_x = circlex + circler - unity_width + buffer}; 
 	if (unity_y > circley - circler - buffer) {unity_y = circley - circler - buffer};
 	if (unity_y + unity_height < circley + circler + buffer) {unity_y = circley + circler - unity_height + buffer}; 
-
+	*/
+	
 	var output = {
 	    x: unity_x,
 	    y: unity_y,
@@ -334,13 +375,22 @@ function getUnityPosition(c, x, y)
 
 //let unity_target_pos_x = 0;
 //let unity_target_pos_y = 0;
+function getMousePosition(e)
+{
+	var output = {
+		x: e.clientX + document.body.scrollLeft,
+		y: e.clientY + document.body.scrollTop
+	};
+
+	return output;
+}
 
 function onMouseMove(e)
 {
 	var c = document.getElementById("canvas");
-	var x = e.clientX + document.body.scrollLeft;
-	var y = e.clientY + document.body.scrollTop;
-
+	x = getMousePosition(e).x;
+	y = getMousePosition(e).y;
+	cachedEvent = e;
 	// Drawing stuff, consider moving to animation step
 
 	//var ctx = c.getContext("2d");
@@ -349,7 +399,6 @@ function onMouseMove(e)
 	if (IsInBox(c, x, y))
 	{
 		var result = getUnityPosition(c, x, y);
-		console.log(result.x, result.y);
 		unity_target_pos_x = result.x;
 		unity_target_pos_y = result.y;
 	}
