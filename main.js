@@ -218,43 +218,11 @@ function RedrawBackground(c)
 	ctx.stroke();
 	ctx.globalAlpha = 1;
 
-
-	// Need to take into account the StartX area.
-
-	/*
-	const font_size = 13;
-	const font_gap = 10;
-	const font_startx = 90;
-	const font_starty = 30;
-
-	startx = startxy.x + font_startx;
-	starty = startxy.y + font_starty;
-
-	// Full image: 3840
-	// No padding distance to vertical bar: 562
-	// Body width: 1051
-
-	bodyHeight = c.height;
-	bodyWidth = c.width;
-	const full_body_width = 3840
-	const no_padding_vertical_bar_width = 562
-	const experimental_width = 1050
-	const experimental_font_size = 13
-	const no_padding_ratio = no_padding_vertical_bar_width / full_body_width
-	console.log("no_padding_ratio:" + no_padding_ratio)
-	const experimental_font_ratio = experimental_font_size / (experimental_width * no_padding_ratio - font_startx)
-	console.log("experimental_font_ratio:" + experimental_font_ratio)
-	const text_size_to_body_ratio = (bodyWidth * no_padding_ratio - font_startx) * experimental_font_ratio
-	console.log("text_size_to_body_ratio:" + text_size_to_body_ratio)
-	*/
-	
-
-	// Shadow starts at 270
+	// Shadow starts at 340
 	// Let font size remain the same
-	
 	const full_start_location_x = 340
 	starty = startxy.y + 30;
-	font_size = 16;
+	font_size = 18;
 	starting_location_x = full_start_location_x / overall_width * startxy.width + startxy.x; 
 
 	ctx.globalAlpha = 0.7;
@@ -385,58 +353,8 @@ $( document ).ready(function() {
 	animate();
 });
 
-// Redraw the canvas on resize
-function CenterCanvas() 
-{
-	/*
-	var c = document.getElementById("myCanvas");
-	var ctx = c.getContext("2d");
-
-	//var bodyHeight = $('body').prop("clientHeight");
-	//var bodyWidth = $('body').prop("clientWidth");
-	bodyHeight = document.body.clientHeight;
-	bodyWidth = document.body.clientWidth;
-
-	var bodyRatio = bodyWidth / bodyHeight;
-	console.log(bodyWidth, bodyHeight);
-
-	// Center the body horizontally by calculating the width of the image
-	var new_overall_width = bodyHeight / overall_height * overall_width;
-	
-	// The height is just height of HTML
-	var new_overall_height = bodyHeight;
-
-	// $('#myCanvas').width(new_overall_width);
-	// $('#myCanvas').height(new_overall_height);
-	c.style.width = new_overall_width - 17;
-	c.style.height = window.innerHeight;
-
-	if (bodyRatio > aspect_ratio)
-	{
-		// If page ratio is greather than background ratio, we have horizontal spaces
-
-		// The space you should give is (bodyRatio - Aspect_Ratio) / 2 * new_overall_height
-		//$('#myCanvas').style.left = (bodyRatio - aspect_ratio) / 2 * new_overall_height + 'px';
-	}
-	else
-	{
-		// Otherwise, we just set location to 0, but the scale is still the same
-	}
-	*/
-}
-
 function onResize(){
 	RedrawCanvas();
-}
-
-function reportWindowSize() 
-{
-	/*
-	var el = document.getElementById("looking_glass");
-	var viewportOffset = el.getBoundingClientRect();
-	document.getElementById("box_parent").width =  viewportOffset.width;
-	document.getElementById("box_parent").height = viewportOffset.height;
-	console.log(viewportOffset);*/
 }
 
 function globalToBoxNormalizedCoords()
