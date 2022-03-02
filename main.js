@@ -65,12 +65,58 @@ const min_width = 1280
 const min_height = 720
 
 let currently_in_box = false
-let reordering_menu_dissapeared = false
+let reordering_menu_dissapeared = true
 let cached_event_ordering = []
 let oddlist = []
 let evenlist = []
 let cachedEvent = {clientX: 0, clientY: 0}
 
+let current_fps_second = 0;
+let frames_kept = 0;
+let current_fps = 0;
+
+
+const ms_per_second = 1000;
+const refresh_interval = 1 * ms_per_second;
+let last_refresh_time = Date.now();
+let last_change_time = Date.now();
+const fade_in_out_interval = 0.4;
+
+
+let last_refresh_time = Date.now();
+let last_mouse_move_time = Date.now();
+
+
+var getTextHeight = function(font) {
+
+  var text = $('<span>Hg</span>').css({ fontFamily: font });
+  var block = $('<div style="display: inline-block; width: 1px; height: 0px;"></div>');
+
+  var div = $('<div></div>');
+  div.append(text, block);
+
+  var body = $('body');
+  body.append(div);
+
+  try {
+
+    var result = {};
+
+    block.css({ verticalAlign: 'baseline' });
+    result.ascent = block.offset().top - text.offset().top;
+
+    block.css({ verticalAlign: 'bottom' });
+    result.height = block.offset().top - text.offset().top;
+
+    result.descent = result.height - result.ascent;
+
+  } finally {
+    div.remove();
+  }
+
+  return result;
+}
+  
 function DrawImage(ctx, img, x, y, width, height)
 {
 	ctx.drawImage(img.width, img.height, x, y, width, height)
@@ -199,7 +245,7 @@ function DrawScrollArea(c)
 	const full_start_location_x = 340
 	starty = startxy.y + 30;
 	font_size = 18;
-	starting_location_x = full_start_location_x / overall_width * startxy.width + startxy.x; 
+	starting_location_x = full_start_location_x / overall_width * startxy.width + startxy.x;
 
 	ctx.globalAlpha = 0.7;
 	for (let i in Events)
@@ -210,6 +256,7 @@ function DrawScrollArea(c)
 		ctx.fillText(Events[i]["Name"], starting_location_x, starty);
 		starty += (font_size * 2);
 	}
+
 	ctx.globalAlpha = 1;
 }
 
@@ -220,6 +267,9 @@ function GetDistance(x1, y1, x2, y2)
 
 let n = 0;
 let m = 0;
+
+// Clamp number between two values with the following line:
+const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 
 function DrawReorderingArea(c)
 {
@@ -233,28 +283,164 @@ function DrawReorderingArea(c)
 	starty = startxy.y + 30;
 	font_size = 30;
 	centering_location_x = full_centering_location_x / overall_width * startxy.width + startxy.x; 
+	const font = "lighter " + font_size + "px Gabriola";
 
 	ctx.globalAlpha = 0.7;
 	// Get distance
-
-	var mouse = getMousePosition(cachedEvent);
+	
+	let current_time = Date.now();
+	
 	if (IsInBox(c, mouse_current_pos_x, mouse_current_pos_y))
 	{
-		cached_event_ordering = []
-		for (let i = 0; i < Events.length; i++)
+		let mouse = getMousePosition(cachedEvent);
+
+		let normalizedPos = GetNormalizedsFromBoxCoords(c, mouse_target_pos_x, mouse_target_pos_y);
+		let unityPosX = normalizedPos.x * unity_width
+		let unityPosY = normalizedPos.y * unity_height
+
+		if (!currently_in_box && reordering_menu_dissapeared)
 		{
-			var normalizedPos = GetNormalizedsFromBoxCoords(c, mouse_current_pos_x, mouse_current_pos_y);
-			var unityPosX = normalizedPos.x * unity_width
-			var unityPosY = normalizedPos.y * unity_height
-			cached_event_ordering.push({index: i, distance: GetDistance(Events[i]["X"] * event_coords_ratio, Events[i]["Y"] * event_coords_ratio, unityPosX, unityPosY)});
-			if (m % 300 == 0)
+			// Create new default ordering
+			currently_in_box = true;
+
+			console.log(Events)
+			//console.log("nums")
+			//console.log(unityPosX)
+			//console.log(unityPosY)
+
+			cached_event_ordering = []
+			for (let i = 0; i < Events.length; i++)
 			{
-				console.log(Events[i]["X"], Events[i]["Y"], unityPosX, unityPosY);
+				var dist = GetDistance(Events[i]["X"] * event_coords_ratio, Events[i]["Y"] * event_coords_ratio, unityPosX, unityPosY);
+				var item = {"index": i, "distance": dist};
+				cached_event_ordering.push(item);
+			}
+
+			console.log("lists")
+			console.log(JSON.stringify(cached_event_ordering))
+
+			cached_event_ordering.sort((a,b) => (a.distance > b.distance) ? 1 : ((a.distance < b.distance) ? -1 : 0))
+			oddlist = []
+			evenlist = []
+
+			for (let i = 0; i < cached_event_ordering.length; i++)
+			{
+				i % 2 == 0 ? evenlist.push(cached_event_ordering[i]) : oddlist.push(cached_event_ordering[i]);
+			}
+		}
+		else if (currently_in_box)
+		{
+			if (current_time - last_refresh_time > refresh_interval)
+			{
+				last_refresh_time = current_time;
+
+				let oddlist_temp = JSON.parse(JSON.stringify(oddlist));
+				let evenlist_temp = JSON.parse(JSON.stringify(evenlist));
+
+				for (let i = 0; i < oddlist.length; i++)
+				{
+					oddlist[i]["distance"] = GetDistance(Events[oddlist[i]["index"]]["X"] * event_coords_ratio, Events[oddlist[i]["index"]]["Y"] * event_coords_ratio, unityPosX, unityPosY);
+				}
+				oddlist.sort((a,b) => (a.distance > b.distance) ? 1 : ((a.distance < b.distance) ? -1 : 0))
+
+				for (let i = 0; i < evenlist.length; i++)
+				{
+					evenlist[i]["distance"] = GetDistance(Events[evenlist[i]["index"]]["X"] * event_coords_ratio, Events[evenlist[i]["index"]]["Y"] * event_coords_ratio, unityPosX, unityPosY);
+				}
+				evenlist.sort((a,b) => (a.distance > b.distance) ? 1 : ((a.distance < b.distance) ? -1 : 0))
+
+				let changed = false
+
+				for (let i = 0; i < 15; i++)
+				{
+					if(oddlist_temp[i]["index"] != oddlist[i]["index"]) changed = true;
+				}
+				for (let i = 0; i < 15; i++)
+				{
+					if(evenlist_temp[i]["index"] != evenlist[i]["index"]) changed = true;
+				}
+
+				if (changed)
+				{
+					last_change_time = last_refresh_time
+				}
+				//console.log("lists")
+				//console.log(JSON.stringify(oddlist))
 			}
 		}
 
-		cached_event_ordering.sort((a,b) => (a.distance > b.distance) ? 1 : ((a.distance < b.distance) ? -1 : 0))
+		let time_elapsed = current_time - last_change_time
+		let time_elapsed_shifted = time_elapsed -  refresh_interval / 2
 
+/*
+		if (time_elapsed_shifted < 0)
+		{
+			// Fade in
+			//current_alpha = 1 - ((refresh_interval - refresh_interval * fade_in_out_interval / 2) - time_elapsed) / (1 - fade_in_out_interval / 2)
+			current_alpha = 1 - Math.Abs(time_elapsed_shifted) / (refresh_interval - refresh_interval * fade_in_out_interval / 2) / ms_per_second
+		}
+		else
+		{
+			// Fade out
+			//current_alpha = 	
+			current_alpha = 1 - Math.Abs(time_elapsed_shifted) / (refresh_interval - refresh_interval * fade_in_out_interval / 2) / ms_per_second
+		}
+*/
+
+		current_alpha = Math.abs(time_elapsed_shifted) / (refresh_interval - refresh_interval * fade_in_out_interval / 2)
+		console.log(time_elapsed_shifted, current_alpha)
+		ctx.globalAlpha = clamp(current_alpha, 0, 1);
+
+		// Odd on top, even below.
+		const full_centering_location_y = 1188
+		const centering_location_y = full_centering_location_y / overall_height * startxy.height; 
+		let font_height = getTextHeight(font).height;
+		font_height = 0;
+
+		starty = centering_location_y;
+		for (let i in evenlist)
+		{
+			//ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";
+			ctx.font = font
+			ctx.fillStyle = "#eeeeee";
+			var measureText = ctx.measureText(Events[evenlist[i]["index"]]["Name"]);
+			ctx.fillText(Events[evenlist[i]["index"]]["Name"], 
+				centering_location_x - measureText.width / 2, 
+				starty - font_height / 2);
+			starty += (font_size * 1.5);
+		}
+
+		starty = centering_location_y - (font_height / 2) - (oddlist.length) * (font_size * 1.5);
+		for (let i in oddlist)
+		{
+			//ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";
+			ctx.font = font
+			ctx.fillStyle = "#eeeeee";
+			var measureText = ctx.measureText(Events[oddlist[i]["index"]]["Name"]);
+			ctx.fillText(Events[oddlist[i]["index"]]["Name"], 
+				centering_location_x - measureText.width / 2, 
+				starty - font_height / 2);
+			starty += (font_size * 1.5);
+		}
+
+
+
+		/*
+		starty = 30
+		for (let i in evenlist)
+		{
+			//ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";
+			ctx.font = "lighter " + font_size + "px Gabriola";
+			ctx.fillStyle = "#eeeeee";
+			var measureText = ctx.measureText(Events[evenlist[i]["index"]]["Name"]);
+			ctx.fillText(Events[evenlist[i]["index"]]["Name"], 
+				centering_location_x - measureText.width / 2, 
+				starty);
+			starty += (font_size * 1.5);		
+		}
+		*/
+
+		/*
 		for (let i in cached_event_ordering)
 		{
 			//ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";
@@ -266,15 +452,19 @@ function DrawReorderingArea(c)
 				starty);
 			starty += (font_size * 1.5);		
 		}
+		*/
 
 		ctx.globalAlpha = 1;
-
-		n++;
-		if (n % 30 == 0)
-		{
-			console.log(cached_event_ordering)
-		}
 	}
+	else
+	{
+		currently_in_box = false;
+	}
+
+	const full_fps_location_x = 3700
+	ctx.font = "lighter " + font_size + "px Gabriola";
+	ending_location_x = full_fps_location_x / overall_width * startxy.width + startxy.x;
+	ctx.fillText(current_fps, ending_location_x, startxy.y + 30);
 }
 
 function RedrawBackground(c)
@@ -290,8 +480,8 @@ function RedrawBackground(c)
 	ctx.fillStyle = "#FF0000";
 	var start = GetBoxCoordsFromNormalizeds(c, 0, 0);
 	var end = GetBoxCoordsFromNormalizeds(c, 1, 1);
-    //ctx.fillRect(start.x, start.y, end.x - start.x, end.y - start.y);
-    ctx.globalAlpha = 1.0;
+  //ctx.fillRect(start.x, start.y, end.x - start.x, end.y - start.y);
+  ctx.globalAlpha = 1.0;
 
 	ctx.globalAlpha = 0.7;
 	ctx.strokeStyle = '#FFFFFF'
@@ -344,6 +534,17 @@ function animate(){
 	ctx.drawImage(unity, unityPos.x, unityPos.y, unity_width, unity_height);
 	//console.log(unityPos.x, unityPos.y);
 	RedrawBackground(c);
+	
+	const d = new Date();
+	let current_second = d.getSeconds()
+	
+	if (current_fps_second != current_second)
+	{
+		current_fps_second = current_second;
+		current_fps = frames_kept;
+		frames_kept = 0;
+	}
+	frames_kept++;
 
 	requestAnimationFrame(animate);
 }
@@ -405,7 +606,6 @@ function onMouseMove(e)
 	// Drawing stuff, consider moving to animation step
 
 	var ctx = c.getContext("2d");
-	ctx.clearRect(0, 0, c.width, c.height);
 
 	if (IsInBox(c, x, y))
 	{
@@ -414,8 +614,8 @@ function onMouseMove(e)
 	}
 
 	unityPos = getUnityPosition(c, mouse_target_pos_x, mouse_target_pos_y)
-	ctx.drawImage(unity, unityPos.x, unityPos.y, unity_width, unity_height);
-	RedrawBackground(c);
+
+	last_mouse_move_time = Date.now();
 }
 
 function RedrawCanvas()
