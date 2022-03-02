@@ -69,23 +69,27 @@ let reordering_menu_dissapeared = true
 let cached_event_ordering = []
 let oddlist = []
 let evenlist = []
+let oddlist_cached = []
+let evenlist_cached = []
 let cachedEvent = {clientX: 0, clientY: 0}
 
 let current_fps_second = 0;
 let frames_kept = 0;
 let current_fps = 0;
 
-
+/*
 const ms_per_second = 1000;
 const refresh_interval = 1 * ms_per_second;
-let last_refresh_time = Date.now();
-let last_change_time = Date.now();
 const fade_in_out_interval = 0.4;
+*/
 
-
-let last_refresh_time = Date.now();
-let last_mouse_move_time = Date.now();
-
+let last_refresh_time_ms = Date.now();
+let last_change_time_ms = Date.now();
+let last_mouse_move_time_ms = Date.now();
+const recheck_interval_ms = 100
+const wait_mouse_still_seconds_for_list_change = 200
+const fade_out_ms = 400
+const fade_in_ms = 400
 
 var getTextHeight = function(font) {
 
@@ -288,7 +292,7 @@ function DrawReorderingArea(c)
 	ctx.globalAlpha = 0.7;
 	// Get distance
 	
-	let current_time = Date.now();
+	let current_time_ms = Date.now();
 	
 	if (IsInBox(c, mouse_current_pos_x, mouse_current_pos_y))
 	{
@@ -330,65 +334,65 @@ function DrawReorderingArea(c)
 		}
 		else if (currently_in_box)
 		{
-			if (current_time - last_refresh_time > refresh_interval)
+			let oddlist_temp = JSON.parse(JSON.stringify(oddlist));
+			let evenlist_temp = JSON.parse(JSON.stringify(evenlist));
+
+			if ((current_time_ms - last_refresh_time_ms) > recheck_interval_ms)
 			{
-				last_refresh_time = current_time;
+				last_refresh_time_ms = current_time_ms;
 
-				let oddlist_temp = JSON.parse(JSON.stringify(oddlist));
-				let evenlist_temp = JSON.parse(JSON.stringify(evenlist));
-
-				for (let i = 0; i < oddlist.length; i++)
+				if (current_time_ms - last_mouse_move_time_ms > wait_mouse_still_seconds_for_list_change)
 				{
-					oddlist[i]["distance"] = GetDistance(Events[oddlist[i]["index"]]["X"] * event_coords_ratio, Events[oddlist[i]["index"]]["Y"] * event_coords_ratio, unityPosX, unityPosY);
-				}
-				oddlist.sort((a,b) => (a.distance > b.distance) ? 1 : ((a.distance < b.distance) ? -1 : 0))
+					for (let i = 0; i < oddlist.length; i++)
+					{
+						oddlist[i]["distance"] = GetDistance(Events[oddlist[i]["index"]]["X"] * event_coords_ratio, Events[oddlist[i]["index"]]["Y"] * event_coords_ratio, unityPosX, unityPosY);
+					}
+					oddlist.sort((a,b) => (a.distance > b.distance) ? 1 : ((a.distance < b.distance) ? -1 : 0))
 
-				for (let i = 0; i < evenlist.length; i++)
-				{
-					evenlist[i]["distance"] = GetDistance(Events[evenlist[i]["index"]]["X"] * event_coords_ratio, Events[evenlist[i]["index"]]["Y"] * event_coords_ratio, unityPosX, unityPosY);
-				}
-				evenlist.sort((a,b) => (a.distance > b.distance) ? 1 : ((a.distance < b.distance) ? -1 : 0))
+					for (let i = 0; i < evenlist.length; i++)
+					{
+						evenlist[i]["distance"] = GetDistance(Events[evenlist[i]["index"]]["X"] * event_coords_ratio, Events[evenlist[i]["index"]]["Y"] * event_coords_ratio, unityPosX, unityPosY);
+					}
+					evenlist.sort((a,b) => (a.distance > b.distance) ? 1 : ((a.distance < b.distance) ? -1 : 0))
 
-				let changed = false
+					let changed = false
 
-				for (let i = 0; i < 15; i++)
-				{
-					if(oddlist_temp[i]["index"] != oddlist[i]["index"]) changed = true;
-				}
-				for (let i = 0; i < 15; i++)
-				{
-					if(evenlist_temp[i]["index"] != evenlist[i]["index"]) changed = true;
-				}
+					for (let i = 0; i < 15; i++)
+					{
+						if(oddlist_temp[i]["index"] != oddlist[i]["index"]) changed = true;
+					}
+					for (let i = 0; i < 15; i++)
+					{
+						if(evenlist_temp[i]["index"] != evenlist[i]["index"]) changed = true;
+					}
 
-				if (changed)
-				{
-					last_change_time = last_refresh_time
+					if (changed)
+					{
+						oddlist_cached = oddlist_temp
+						evenlist_cached = evenlist_temp
+						last_change_time_ms = last_refresh_time_ms
+					}
 				}
-				//console.log("lists")
-				//console.log(JSON.stringify(oddlist))
 			}
 		}
 
-		let time_elapsed = current_time - last_change_time
-		let time_elapsed_shifted = time_elapsed -  refresh_interval / 2
+		let time_elapsed = current_time_ms - last_change_time_ms
 
-/*
-		if (time_elapsed_shifted < 0)
+		if (time_elapsed < fade_out_ms)
 		{
-			// Fade in
-			//current_alpha = 1 - ((refresh_interval - refresh_interval * fade_in_out_interval / 2) - time_elapsed) / (1 - fade_in_out_interval / 2)
-			current_alpha = 1 - Math.Abs(time_elapsed_shifted) / (refresh_interval - refresh_interval * fade_in_out_interval / 2) / ms_per_second
+			current_alpha = 1 - time_elapsed / fade_out_ms 
+		}
+		else if (time_elapsed < fade_out_ms + fade_in_ms)
+		{
+			oddlist_cached = oddlist
+			evenlist_cached = evenlist
+			current_alpha = (time_elapsed - fade_out_ms) / fade_in_ms
 		}
 		else
 		{
-			// Fade out
-			//current_alpha = 	
-			current_alpha = 1 - Math.Abs(time_elapsed_shifted) / (refresh_interval - refresh_interval * fade_in_out_interval / 2) / ms_per_second
+			current_alpha = 1
 		}
-*/
 
-		current_alpha = Math.abs(time_elapsed_shifted) / (refresh_interval - refresh_interval * fade_in_out_interval / 2)
-		console.log(time_elapsed_shifted, current_alpha)
 		ctx.globalAlpha = clamp(current_alpha, 0, 1);
 
 		// Odd on top, even below.
@@ -398,26 +402,26 @@ function DrawReorderingArea(c)
 		font_height = 0;
 
 		starty = centering_location_y;
-		for (let i in evenlist)
+		for (let i in evenlist_cached)
 		{
 			//ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";
 			ctx.font = font
 			ctx.fillStyle = "#eeeeee";
-			var measureText = ctx.measureText(Events[evenlist[i]["index"]]["Name"]);
-			ctx.fillText(Events[evenlist[i]["index"]]["Name"], 
+			var measureText = ctx.measureText(Events[evenlist_cached[i]["index"]]["Name"]);
+			ctx.fillText(Events[evenlist_cached[i]["index"]]["Name"], 
 				centering_location_x - measureText.width / 2, 
 				starty - font_height / 2);
 			starty += (font_size * 1.5);
 		}
 
 		starty = centering_location_y - (font_height / 2) - (oddlist.length) * (font_size * 1.5);
-		for (let i in oddlist)
+		for (let i in oddlist_cached)
 		{
 			//ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";
 			ctx.font = font
 			ctx.fillStyle = "#eeeeee";
-			var measureText = ctx.measureText(Events[oddlist[i]["index"]]["Name"]);
-			ctx.fillText(Events[oddlist[i]["index"]]["Name"], 
+			var measureText = ctx.measureText(Events[oddlist_cached[i]["index"]]["Name"]);
+			ctx.fillText(Events[oddlist_cached[i]["index"]]["Name"], 
 				centering_location_x - measureText.width / 2, 
 				starty - font_height / 2);
 			starty += (font_size * 1.5);
@@ -615,7 +619,7 @@ function onMouseMove(e)
 
 	unityPos = getUnityPosition(c, mouse_target_pos_x, mouse_target_pos_y)
 
-	last_mouse_move_time = Date.now();
+	last_mouse_move_time_ms = Date.now();
 }
 
 function RedrawCanvas()
