@@ -248,7 +248,7 @@ function DrawScrollArea(c)
 	// Let font size remain the same
 	const full_start_location_x = 340
 	starty = startxy.y + 30;
-	font_size = 18;
+	font_size = 20;
 	starting_location_x = full_start_location_x / overall_width * startxy.width + startxy.x;
 
 	ctx.globalAlpha = 0.7;
@@ -285,9 +285,7 @@ function DrawReorderingArea(c)
 	// Let font size remain the same
 	const full_centering_location_x = 380
 	starty = startxy.y + 30;
-	font_size = 30;
 	centering_location_x = full_centering_location_x / overall_width * startxy.width + startxy.x; 
-	const font = "lighter " + font_size + "px Gabriola";
 
 	ctx.globalAlpha = 0.7;
 	// Get distance
@@ -323,7 +321,7 @@ function DrawReorderingArea(c)
 			console.log("lists")
 			console.log(JSON.stringify(cached_event_ordering))
 
-			cached_event_ordering.sort((a,b) => (a.distance > b.distance) ? 1 : ((a.distance < b.distance) ? -1 : 0))
+			//cached_event_ordering.sort((a,b) => (a.distance > b.distance) ? 1 : ((a.distance < b.distance) ? -1 : 0))
 			oddlist = []
 			evenlist = []
 
@@ -393,70 +391,44 @@ function DrawReorderingArea(c)
 			current_alpha = 1
 		}
 
-		ctx.globalAlpha = clamp(current_alpha, 0, 1);
+			ctx.fillStyle = "#eeeeee";
 
 		// Odd on top, even below.
 		const full_centering_location_y = 1188
 		const centering_location_y = full_centering_location_y / overall_height * startxy.height; 
-		let font_height = getTextHeight(font).height;
 		font_height = 0;
+
+
+		var font_size = 40;
 
 		starty = centering_location_y;
 		for (let i in evenlist_cached)
 		{
-			//ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";
-			ctx.font = font
-			ctx.fillStyle = "#eeeeee";
+			ctx.globalAlpha = clamp(current_alpha, 0, 1) - i * 0.05;
+			var font = "lighter " + font_size + "px Gabriola";
+			let font_height = getTextHeight(font).height;
+			ctx.font = font;
 			var measureText = ctx.measureText(Events[evenlist_cached[i]["index"]]["Name"]);
 			ctx.fillText(Events[evenlist_cached[i]["index"]]["Name"], 
-				centering_location_x - measureText.width / 2, 
-				starty - font_height / 2);
+				centering_location_x - measureText.width / 2,  starty - font_height / 2);
 			starty += (font_size * 1.5);
+			font_size -= 2;
 		}
 
-		starty = centering_location_y - (font_height / 2) - (oddlist.length) * (font_size * 1.5);
+		var font_size = 35;
+		starty = full_centering_location_y / overall_height * startxy.height - font_size * 1.5;
 		for (let i in oddlist_cached)
 		{
-			//ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";
-			ctx.font = font
-			ctx.fillStyle = "#eeeeee";
+			ctx.globalAlpha = clamp(current_alpha, 0, 1) - i * 0.05;
+			var font = "lighter " + font_size + "px Gabriola";
+			let font_height = getTextHeight(font).height;
+			ctx.font = font;
 			var measureText = ctx.measureText(Events[oddlist_cached[i]["index"]]["Name"]);
 			ctx.fillText(Events[oddlist_cached[i]["index"]]["Name"], 
-				centering_location_x - measureText.width / 2, 
-				starty - font_height / 2);
-			starty += (font_size * 1.5);
+				centering_location_x - measureText.width / 2, starty - font_height / 2);
+			starty -= (font_size * 1.5);
+			font_size -= 2;
 		}
-
-
-
-		/*
-		starty = 30
-		for (let i in evenlist)
-		{
-			//ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";
-			ctx.font = "lighter " + font_size + "px Gabriola";
-			ctx.fillStyle = "#eeeeee";
-			var measureText = ctx.measureText(Events[evenlist[i]["index"]]["Name"]);
-			ctx.fillText(Events[evenlist[i]["index"]]["Name"], 
-				centering_location_x - measureText.width / 2, 
-				starty);
-			starty += (font_size * 1.5);		
-		}
-		*/
-
-		/*
-		for (let i in cached_event_ordering)
-		{
-			//ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";
-			ctx.font = "lighter " + font_size + "px Gabriola";
-			ctx.fillStyle = "#eeeeee";
-			var measureText = ctx.measureText(Events[cached_event_ordering[i]["index"]]["Name"]);
-			ctx.fillText(Events[cached_event_ordering[i]["index"]]["Name"], 
-				centering_location_x - measureText.width / 2, 
-				starty);
-			starty += (font_size * 1.5);		
-		}
-		*/
 
 		ctx.globalAlpha = 1;
 	}
