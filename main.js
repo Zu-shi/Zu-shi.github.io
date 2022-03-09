@@ -526,12 +526,12 @@ function DrawScrollingBarArea(c)
 	for (let i in Events)
 	{
 		ctx.fillText(Events[i]["Name"], starting_location_x, starty);
-		starty += (font_size * 2);
 		EventHitboxesNormalized.push({
 			"x": full_start_location_x / overall_width, 
-			"y": starty / startxy.height, 
-			"width": ctx.measureText(Events[i]["Name"]) / startxy.width, 
-			"height": font_height / startxy.height});
+			"y": (starty - font_size / 2) / startxy.height, 
+			"width": ctx.measureText(Events[i]["Name"]).width / startxy.width, 
+			"height": font_size / startxy.height});
+		starty += (font_size * 2);
 	}
 
 	ctx.globalAlpha = 1;
@@ -542,7 +542,7 @@ function DrawBox(c)
 	var ctx = c.getContext("2d");
 	var r = GetMainRegion(c);
 	DrawImageCentered(ctx, scrollBar,
-		boxX * r.width,
+		boxX * r.width + r.x,
 		boxY * r.height,
 		r.width * box_raw_width / overall_width, 
 		r.height * box_raw_height / overall_height
@@ -717,7 +717,7 @@ $( document ).ready(function() {
     console.log( "ready!" );
 	document.addEventListener('mousemove', onMouseMove);
 	document.addEventListener('mousedown', onMouseDown);
-	document.addEventListener('mouseclick', onMouseClick);
+	document.addEventListener('click', onMouseClick);
 	document.addEventListener('wheel', onScroll);
 	document.addEventListener('mouseup', onMouseUp);
     RedrawCanvas();
@@ -734,7 +734,7 @@ const scrollbar_bottom_pos_x = 0.1
 const scrollbar_bottom_pos_y = 13.5 / 16
 const box_raw_width = 63;
 const box_raw_height = 561;
-let boxX = 0.05
+let boxX = 0.07
 let boxY = 0.5
 let scrollBoxSelected = false;
 let scrollBoxTextSize = 30;
@@ -744,7 +744,7 @@ function hitScrollBoxTest(c, mouse_pos_raw)
 {
 	mouse_x = convertHtmlDistanceToNormalizedDistanceX(c, mouse_pos_raw.x)
 	mouse_y = convertHtmlDistanceToNormalizedDistanceY(c, mouse_pos_raw.y)
-	console.log("mouse_pos", mouse_x, mouse_y)
+	//console.log("mouse_pos", mouse_x, mouse_y)
 
 	if (!scrollBoxSelected)
 	{
@@ -753,7 +753,7 @@ function hitScrollBoxTest(c, mouse_pos_raw)
 		box_top = boxY - convertFullImageDistanceToNormalizedDistanceY(c, box_raw_height) / 2;
 		box_bottom = box_top + convertFullImageDistanceToNormalizedDistanceY(c, box_raw_height);
 
-		console.log("left, right, top, bottom: ", box_left, box_right, box_top, box_bottom);
+		//console.log("left, right, top, bottom: ", box_left, box_right, box_top, box_bottom);
 
 		if (mouse_x < box_right && mouse_x > box_left && mouse_y < box_bottom && mouse_y > box_top && !scrollBoxSelected)
 		{
@@ -765,10 +765,11 @@ function hitScrollBoxTest(c, mouse_pos_raw)
 	}
 }
 
-function OnClick(e)
+function onMouseClick(e)
 {
 	var c = document.getElementById("canvas");
 	hitTextTest(c, e);
+	console.log("click")
 }
 
 function hitTextTest(c, mouse_pos_raw)
@@ -786,10 +787,13 @@ function hitTextTest(c, mouse_pos_raw)
 
 		if (mouse_x < box_right && mouse_x > box_left && mouse_y < box_bottom && mouse_y > box_top)
 		{
-				console.log("selected");
-				// Move to Unity Position
-				// scrollBoxSelectedPosition["x"] = mouse_x;
-				// scrollBoxSelectedPosition["y"] = mouse_y;
+			console.log("selected");
+			console.log(Events[i]["Name"]);
+			var coords = GetBoxCoordsFromNormalizeds(c, 
+				Events[i]["X"] * event_coords_ratio / unity_width, 
+				Events[i]["Y"] * event_coords_ratio / unity_height)
+			mouse_target_pos_x = coords.x;
+			mouse_target_pos_y = coords.y;
 		}
 	}
 }
