@@ -54,8 +54,8 @@ eventFont.load().then(function(font){
 
 const overall_width = 3840
 const overall_height = 2160
-const overall_startx = 1232
-const overall_starty = 256
+const overall_box_startx = 1232
+const overall_box_starty = 256
 const box_width = 1382
 const box_height = 334
 const aspect_ratio = overall_width / overall_height;
@@ -97,6 +97,13 @@ const recheck_interval_ms = 100
 const wait_mouse_still_seconds_for_list_change = 200
 const fade_out_ms = 400
 const fade_in_ms = 400
+
+let reordering_menu_alpha = 1;
+let ordered_menu_alpha = 1;
+
+let reordering_menu_alpha_target = 1;
+let ordered_menu_alpha_target = 1;
+const alpha_menu_change_speed = 0.1;
 
 var getTextHeight = function(font) {
 
@@ -203,36 +210,56 @@ function GetMainRegion(c)
 	    height: new_overall_height,
 	};
 
+	console.log("regionx: ", x, " regionheight: ", new_overall_height)
+
 	return obj;
 }
 
-function GetBoxCoordsFromNormalizeds(c, x_n, y_n)
+// Returns box mouse position. Take input from box normalized coords.
+function GetMouseCoordsFromBoxNormalizedCoords(c, x_n, y_n)
 {
 	var yratio = c.height / overall_height;
 	var xratio = yratio;
-	var yposition = yratio * overall_starty;
-	var xposition = xratio * overall_startx;
+	var yboxposition = yratio * overall_box_starty;
+	var xboxposition = xratio * overall_box_startx;
 
 	var r = GetMainRegion(c);
 	var obj = {
-	    x: r.x + xposition + x_n * xratio * box_width,
-	    y: r.y + yposition + y_n * yratio * box_height,
+	    x: r.x + xboxposition + x_n * xratio * box_width,
+	    y: r.y + yboxposition + y_n * yratio * box_height,
 	};
 
 	return obj;
 }
 
-function GetNormalizedsFromBoxCoords(c, x, y)
+
+// Returns 0 to 1 in whole region normalized coordinates. Take input mouse coords.
+function GetNormalizedCoordsFromMouseCoords(c, mouse_x, mouse_y)
+{
+	var r = GetMainRegion(c);
+	var xposition = (mouse_x - r.x) / r.width;
+	var yposition = (mouse_y - r.y) / c.height;
+
+	var obj = {
+	    x: xposition,
+	    y: yposition,
+	};
+
+	return obj;
+}
+
+// Returns 0 to 1 in boxed coordinates. Take input from mouse positions.
+function GetNormalizedBoxCoordsFromMouseCoords(c, mouse_x, mouse_y)
 {
 	var yratio = c.height / overall_height;
 	var xratio = yratio;
-	var yposition = yratio * overall_starty;
-	var xposition = xratio * overall_startx;
+	var yposition = yratio * overall_box_startx;
+	var xposition = xratio * overall_box_starty;
 
 	var r = GetMainRegion(c);
 
-	var xs = (x - (r.x + xposition)) / (xratio * box_width);
-	var ys = (y - (r.y + yposition)) / (yratio * box_height);
+	var xs = (mouse_x - (r.x + xposition)) / (xratio * box_width);
+	var ys = (mouse_y - (r.y + yposition)) / (yratio * box_height);
 
 	var obj = {
 	    x: xs,
@@ -242,9 +269,11 @@ function GetNormalizedsFromBoxCoords(c, x, y)
 	return obj;
 }
 
-function IsInBox(c, x, y)
+// Returns whether in box.
+function IsInBox(c, mouse_x, mouse_y)
 {
-	var coords = GetNormalizedsFromBoxCoords(c, x, y);
+	var coords = GetNormalizedBoxCoordsFromMouseCoords(c, mouse_x, mouse_y);
+	console.log(coords.x, coords.y)
 	return coords.x > 0 && coords.x < 1 && coords.y > 0 && coords.y < 1;
 }
 
@@ -265,12 +294,13 @@ function DrawScrollArea(c)
 
 	EventHitboxes = []
 
-	ctx.globalAlpha = 0.7;
+	ctx.fillStyle = "#eeeeee";
+
+	ctx.globalAlpha = 0.7 * ordered_menu_alpha;
 	for (let i in Events)
 	{
 		//ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";ctx.font = "lighter " + text_size_to_body_ratio + "px Times New Roman";
 		ctx.font = "lighter " + font_size + "px Gabriola";
-		ctx.fillStyle = "#eeeeee";
 		ctx.fillText(Events[i]["Name"], starting_location_x, starty);
 		starty += (font_size * 2);
 	}
@@ -306,11 +336,21 @@ function DrawReorderingArea(c)
 	
 	let current_time_ms = Date.now();
 	
-	if (IsInBox(c, mouse_current_pos_x, mouse_current_pos_y))
+	if (!IsInBox(c, mouse_current_pos_x, mouse_current_pos_y))
 	{
+		// console.log("out of box")
+		currently_in_box = false;
+		reordering_menu_alpha_target = 0;
+		ordered_menu_alpha_target = 1;
+	}
+	else
+	{
+		// console.log("in box")
+		reordering_menu_alpha_target = 1;
+		ordered_menu_alpha_target = 0;
 		let mouse = getMousePosition(cachedEvent);
 
-		let normalizedPos = GetNormalizedsFromBoxCoords(c, mouse_target_pos_x, mouse_target_pos_y);
+		let normalizedPos = GetNormalizedBoxCoordsFromMouseCoords(c, mouse_target_pos_x, mouse_target_pos_y);
 		let unityPosX = normalizedPos.x * unity_width
 		let unityPosY = normalizedPos.y * unity_height
 
@@ -402,10 +442,10 @@ function DrawReorderingArea(c)
 		}
 		else
 		{
-			current_alpha = 1
+			current_alpha = reordering_menu_alpha;
 		}
 
-			ctx.fillStyle = "#eeeeee";
+		ctx.fillStyle = "#eeeeee";
 
 		// Odd on top, even below.
 		const full_centering_location_y = 1188
@@ -446,10 +486,6 @@ function DrawReorderingArea(c)
 
 		ctx.globalAlpha = 1;
 	}
-	else
-	{
-		currently_in_box = false;
-	}
 
 	const full_fps_location_x = 3700
 	ctx.font = "lighter " + font_size + "px Gabriola";
@@ -468,8 +504,8 @@ function RedrawBackground(c)
 
 	ctx.globalAlpha = 0.5;
 	ctx.fillStyle = "#FF0000";
-	var start = GetBoxCoordsFromNormalizeds(c, 0, 0);
-	var end = GetBoxCoordsFromNormalizeds(c, 1, 1);
+	// var start = GetBoxCoordsFromNormalizeds(c, 0, 0);
+	// var end = GetBoxCoordsFromNormalizeds(c, 1, 1);
   //ctx.fillRect(start.x, start.y, end.x - start.x, end.y - start.y);
   ctx.globalAlpha = 1.0;
 
@@ -480,16 +516,16 @@ function RedrawBackground(c)
 	startxy = GetMainRegion(c);
 
 	for (let i in Events) {
-		var circle = GetBoxCoordsFromNormalizeds(c, Events[i]["X"] / unity_width, Events[i]["Y"] / unity_height);
-	  var radius = GetBoxCoordsFromNormalizeds(c, (Events[i]["X"] + Events[i]["Radius"]) / unity_width, 0).x - GetBoxCoordsFromNormalizeds(c, Events[i]["X"] / unity_width, 0).x;
+		// var circle = GetBoxCoordsFromNormalizeds(c, Events[i]["X"] / unity_width, Events[i]["Y"] / unity_height);
+	  // var radius = GetBoxCoordsFromNormalizeds(c, (Events[i]["X"] + Events[i]["Radius"]) / unity_width, 0).x - GetBoxCoordsFromNormalizeds(c, Events[i]["X"] / unity_width, 0).x;
 		//DrawCircle(ctx, circle.x, circle.y, radius, "#FFFFFF");
 		//DrawCross(ctx, circle.x, circle.y, radius / 2, "#FFFFFF");
 	}
 	ctx.stroke();
 	ctx.globalAlpha = 1;
 
-	// DrawScrollArea(c);
-	// DrawReorderingArea(c)
+	//DrawScrollArea(c);
+	DrawReorderingArea(c)
 	DrawScrollingBarArea(c);
 }
 
@@ -511,11 +547,10 @@ function DrawScrollingBarArea(c)
 
 	var font = "lighter " + font_size + "px Gabriola";
 	ctx.font = font;
-	ctx.fillStyle = "#eeeeee";
 	let font_height = getTextHeight(font).height;
 	let expected_rectangle_height = 30 + (Events.length - 1) * 2 * font_size + font_height + 30;
 
-	ctx.globalAlpha = 1;
+	ctx.globalAlpha = ordered_menu_alpha;
 	boxNormalized = (boxY - scrollbar_top_pos_y) / (scrollbar_bottom_pos_y - scrollbar_top_pos_y);
 
 	EventHitboxesNormalized = []
@@ -523,6 +558,15 @@ function DrawScrollingBarArea(c)
 	starty = 50 - (boxNormalized * (expected_rectangle_height - startxy.height));
 	//console.log("BoxNormalized: " + boxNormalized)
 	//console.log("StartY" + starty)
+	
+	let gradient = ctx.createLinearGradient(starting_location_x, 0, starting_location_x + 350, 0);
+
+	gradient.addColorStop(0, 'rgba(238, 238, 238, 1)');
+	gradient.addColorStop(0.5, 'rgba(238, 238, 238, 1)');
+	gradient.addColorStop(0.8, 'rgba(238, 238, 238, 0.1)');
+	gradient.addColorStop(1, 'rgba(238, 238, 238, 0)');
+	ctx.fillStyle = gradient;
+
 	for (let i in Events)
 	{
 		ctx.fillText(Events[i]["Name"], starting_location_x, starty);
@@ -541,6 +585,8 @@ function DrawBox(c)
 {
 	var ctx = c.getContext("2d");
 	var r = GetMainRegion(c);
+	ctx.globalAlpha = ordered_menu_alpha;
+
 	DrawImageCentered(ctx, scrollBar,
 		boxX * r.width + r.x,
 		boxY * r.height,
@@ -573,6 +619,12 @@ function animate(){
 	mouse_current_pos_x = mouse_current_pos_x + (distX * unity_move_speed);
 	mouse_current_pos_y = mouse_current_pos_y + (distY * unity_move_speed);
 
+	let distAlphaReorder = reordering_menu_alpha_target - reordering_menu_alpha;
+	let distAlphaOrder = ordered_menu_alpha_target - ordered_menu_alpha;
+
+	reordering_menu_alpha = reordering_menu_alpha + (distAlphaReorder * alpha_menu_change_speed)
+	ordered_menu_alpha = ordered_menu_alpha + (distAlphaOrder * alpha_menu_change_speed)
+
 	// Drawing stuff, consider moving to animation step
 	var c = document.getElementById("canvas");
 	var ctx = c.getContext("2d");
@@ -597,7 +649,7 @@ function animate(){
 }
 
 // Gets the Position of a Mouse Pointer on We Are Unity Native Space
-function getUnityPosition(c, x, y)
+function getUnityPosition(c, mouse_x, mouse_y)
 {
 	// We need to get the position of the circle, first we need to calculate the y position in the circle
 	// x = GetMainRegion...
@@ -608,7 +660,7 @@ function getUnityPosition(c, x, y)
 	circler = circle_radius / overall_height * r.height;
 
 	// I also need current x, y, in box coords, which I can use to line up.
-	var box = GetNormalizedsFromBoxCoords(c, x, y);
+	var box = GetNormalizedCoordsFromMouseCoords(c, mouse_x, mouse_y);
 	//console.log(box.x, box.y);
 
 	// First of all I want to shift image by boxcoords * unity_width, same for height
@@ -789,7 +841,7 @@ function hitTextTest(c, mouse_pos_raw)
 		{
 			console.log("selected");
 			console.log(Events[i]["Name"]);
-			var coords = GetBoxCoordsFromNormalizeds(c, 
+			var coords = GetMouseCoordsFromBoxNormalizedCoords(c, 
 				Events[i]["X"] * event_coords_ratio / unity_width, 
 				Events[i]["Y"] * event_coords_ratio / unity_height)
 			mouse_target_pos_x = coords.x;
