@@ -97,6 +97,10 @@ const recheck_interval_ms = 100
 const wait_mouse_still_seconds_for_list_change = 200
 const fade_out_ms = 400
 const fade_in_ms = 400
+let beforefirstchange = false;
+let beforesecondchange = false;
+let beforefirstrefresh = false;
+let beforefirstdidnotchange = false;
 
 let reordering_menu_alpha = 1;
 let ordered_menu_alpha = 1;
@@ -339,12 +343,13 @@ function DrawReorderingArea(c)
 	
 	let current_time_ms = Date.now();
 	
-	if (!IsInBox(c, mouse_current_pos_x, mouse_current_pos_y))
+	if (!IsInBox(c, mouse_unbounded_pos_x, mouse_unbounded_pos_y))
 	{
 		// console.log("out of box")
 		currently_in_box = false;
 		reordering_menu_alpha_target = 0;
 		ordered_menu_alpha_target = 1;
+		firstchange = false;
 	}
 	else
 	{
@@ -353,19 +358,22 @@ function DrawReorderingArea(c)
 		ordered_menu_alpha_target = 0;
 		let mouse = getMousePosition(cachedEvent);
 
-		let normalizedPos = GetNormalizedCoordsFromMouseCoords(c, mouse_target_pos_x, mouse_target_pos_y);
+		let normalizedPos = GetNormalizedCoordsFromMouseCoords(c, mouse_inbox_target_pos_x, mouse_inbox_target_pos_y);
 		let unityPosX = normalizedPos.x * unity_width
 		let unityPosY = normalizedPos.y * unity_height
 
-		if (!currently_in_box && reordering_menu_dissapeared)
+
+		if (!currently_in_box)
 		{
 			// Create new default ordering
 			currently_in_box = true;
+			beforefirstchange = true;
+			beforefirstrefresh = true;
+			beforesecondchange = true;
+			beforefirstdidnotchange = true;
+			last_change_time_ms = last_refresh_time_ms
 
-			console.log(Events)
-			//console.log("nums")
-			//console.log(unityPosX)
-			//console.log(unityPosY)
+			// console.log(Events)
 
 			cached_event_ordering = []
 			for (let i = 0; i < Events.length; i++)
@@ -387,46 +395,55 @@ function DrawReorderingArea(c)
 				i % 2 == 0 ? evenlist.push(cached_event_ordering[i]) : oddlist.push(cached_event_ordering[i]);
 			}
 		}
-		else if (currently_in_box)
+
+		let oddlist_temp = JSON.parse(JSON.stringify(oddlist));
+		let evenlist_temp = JSON.parse(JSON.stringify(evenlist));
+
+		if ((current_time_ms - last_refresh_time_ms) > recheck_interval_ms)
 		{
-			let oddlist_temp = JSON.parse(JSON.stringify(oddlist));
-			let evenlist_temp = JSON.parse(JSON.stringify(evenlist));
+			last_refresh_time_ms = current_time_ms;
 
-			if ((current_time_ms - last_refresh_time_ms) > recheck_interval_ms)
+			if (current_time_ms - last_mouse_move_time_ms > wait_mouse_still_seconds_for_list_change)
 			{
-				last_refresh_time_ms = current_time_ms;
-
-				if (current_time_ms - last_mouse_move_time_ms > wait_mouse_still_seconds_for_list_change)
+				for (let i = 0; i < oddlist.length; i++)
 				{
-					for (let i = 0; i < oddlist.length; i++)
-					{
-						oddlist[i]["distance"] = GetDistance(Events[oddlist[i]["index"]]["X"] * event_coords_ratio, Events[oddlist[i]["index"]]["Y"] * event_coords_ratio, unityPosX, unityPosY);
-					}
-					oddlist.sort((a,b) => (a.distance > b.distance) ? 1 : ((a.distance < b.distance) ? -1 : 0))
+					oddlist[i]["distance"] = GetDistance(Events[oddlist[i]["index"]]["X"] * event_coords_ratio, 
+						Events[oddlist[i]["index"]]["Y"] * event_coords_ratio, unityPosX, unityPosY);
+				}
+				oddlist.sort((a,b) => (a.distance > b.distance) ? 1 : ((a.distance < b.distance) ? -1 : 0))
 
-					for (let i = 0; i < evenlist.length; i++)
-					{
-						evenlist[i]["distance"] = GetDistance(Events[evenlist[i]["index"]]["X"] * event_coords_ratio, Events[evenlist[i]["index"]]["Y"] * event_coords_ratio, unityPosX, unityPosY);
-					}
-					evenlist.sort((a,b) => (a.distance > b.distance) ? 1 : ((a.distance < b.distance) ? -1 : 0))
+				for (let i = 0; i < evenlist.length; i++)
+				{
+					evenlist[i]["distance"] = GetDistance(Events[evenlist[i]["index"]]["X"] * event_coords_ratio, 
+						Events[evenlist[i]["index"]]["Y"] * event_coords_ratio, unityPosX, unityPosY);
+				}
+				evenlist.sort((a,b) => (a.distance > b.distance) ? 1 : ((a.distance < b.distance) ? -1 : 0))
 
-					let changed = false
+				let changed = false
 
-					for (let i = 0; i < 15; i++)
-					{
-						if(oddlist_temp[i]["index"] != oddlist[i]["index"]) changed = true;
-					}
-					for (let i = 0; i < 15; i++)
-					{
-						if(evenlist_temp[i]["index"] != evenlist[i]["index"]) changed = true;
-					}
+				for (let i = 0; i < 15; i++)
+				{
+					if(oddlist_temp[i]["index"] != oddlist[i]["index"]) changed = true;
+				}
+				for (let i = 0; i < 15; i++)
+				{
+					if(evenlist_temp[i]["index"] != evenlist[i]["index"]) changed = true;
+				}
 
-					if (changed)
+				if (changed)
+				{
+					if (!beforefirstchange)
 					{
-						oddlist_cached = oddlist_temp
-						evenlist_cached = evenlist_temp
-						last_change_time_ms = last_refresh_time_ms
+						beforesecondchange = false;
 					}
+					beforefirstchange = false;
+					oddlist_cached = oddlist_temp
+					evenlist_cached = evenlist_temp
+					last_change_time_ms = last_refresh_time_ms
+				}
+				else
+				{
+					beforefirstdidnotchange = false;
 				}
 			}
 		}
@@ -435,18 +452,23 @@ function DrawReorderingArea(c)
 
 		if (time_elapsed < fade_out_ms)
 		{
-			current_alpha = 1 - time_elapsed / fade_out_ms 
+			current_alpha = (1 - time_elapsed / fade_out_ms) * reordering_menu_alpha
 		}
 		else if (time_elapsed < fade_out_ms + fade_in_ms)
 		{
+			beforefirstrefresh = false;
 			oddlist_cached = oddlist
 			evenlist_cached = evenlist
-			current_alpha = (time_elapsed - fade_out_ms) / fade_in_ms
+			current_alpha = ((time_elapsed - fade_out_ms) / fade_in_ms) * reordering_menu_alpha
 		}
 		else
 		{
 			current_alpha = reordering_menu_alpha;
 		}
+
+		//if (beforefirstchange || beforefirstrefresh || beforesecondchange) {current_alpha = 0;}
+		// if (beforefirstchange || beforefirstrefresh || beforefirstdidnotchange) {current_alpha = 0;}
+		if (beforefirstrefresh) {current_alpha = 0;}
 
 		ctx.fillStyle = "#eeeeee";
 
@@ -608,21 +630,23 @@ let unity_target_pos_x = 0;
 let unity_target_pos_y = 0;
 
 // Normalized
-let mouse_current_pos_x = 0;
-let mouse_current_pos_y = 0;
-let mouse_target_pos_x = 0;
-let mouse_target_pos_y = 0;
+let mouse_inbox_current_pos_x = 0;
+let mouse_inbox_current_pos_y = 0;
+let mouse_inbox_target_pos_x = 0;
+let mouse_inbox_target_pos_y = 0;
+let mouse_unbounded_pos_x = 0;
+let mouse_unbounded_pos_y = 0;
 
 let text_move_speed = 0;
 
 
 function animate(){
 	// console.log("animation");
-	let distX = mouse_target_pos_x - mouse_current_pos_x;
-	let distY = mouse_target_pos_y - mouse_current_pos_y;
+	let distX = mouse_inbox_target_pos_x - mouse_inbox_current_pos_x;
+	let distY = mouse_inbox_target_pos_y - mouse_inbox_current_pos_y;
 
-	mouse_current_pos_x = mouse_current_pos_x + (distX * unity_move_speed);
-	mouse_current_pos_y = mouse_current_pos_y + (distY * unity_move_speed);
+	mouse_inbox_current_pos_x = mouse_inbox_current_pos_x + (distX * unity_move_speed);
+	mouse_inbox_current_pos_y = mouse_inbox_current_pos_y + (distY * unity_move_speed);
 
 	let distAlphaReorder = reordering_menu_alpha_target - reordering_menu_alpha;
 	let distAlphaOrder = ordered_menu_alpha_target - ordered_menu_alpha;
@@ -634,7 +658,7 @@ function animate(){
 	var c = document.getElementById("canvas");
 	var ctx = c.getContext("2d");
 	ctx.clearRect(0, 0, c.width, c.height);
-	unityPos = getUnityPosition(c, mouse_current_pos_x, mouse_current_pos_y)
+	unityPos = getUnityPosition(c, mouse_inbox_current_pos_x, mouse_inbox_current_pos_y)
 	ctx.drawImage(unity, unityPos.x, unityPos.y, unity_width, unity_height);
 	//console.log(unityPos.x, unityPos.y);
 	RedrawBackground(c);
@@ -711,15 +735,19 @@ function onMouseMove(e)
 
 	var ctx = c.getContext("2d");
 
-	if (IsInBox(c, x, y) || mouse_target_pos_x == 0 && mouse_target_pos_y == 0)
+	mouse_unbounded_pos_x = x;
+	mouse_unbounded_pos_y = y;
+	
+	if (IsInBox(c, x, y) || mouse_inbox_target_pos_x == 0 && mouse_inbox_target_pos_y == 0)
 	{
-		mouse_target_pos_x = x;
-		mouse_target_pos_y = y;
+		mouse_inbox_target_pos_x = x;
+		mouse_inbox_target_pos_y = y;
 	}
 
-	unityPos = getUnityPosition(c, mouse_target_pos_x, mouse_target_pos_y)
+	unityPos = getUnityPosition(c, mouse_inbox_target_pos_x, mouse_inbox_target_pos_y)
 
 	last_mouse_move_time_ms = Date.now();
+	last_refresh_time_ms = Date.now();
 
 	if (scrollBoxSelected)
 	{
@@ -849,8 +877,8 @@ function hitTextTest(c, mouse_pos_raw)
 			var coords = GetMouseCoordsFromBoxNormalizedCoords(c, 
 				Events[i]["X"] * event_coords_ratio / unity_width, 
 				Events[i]["Y"] * event_coords_ratio / unity_height)
-			mouse_target_pos_x = coords.x;
-			mouse_target_pos_y = coords.y;
+			mouse_inbox_target_pos_x = coords.x;
+			mouse_inbox_target_pos_y = coords.y;
 		}
 	}
 }
