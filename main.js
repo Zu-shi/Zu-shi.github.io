@@ -251,15 +251,18 @@ function GetNormalizedCoordsFromMouseCoords(c, mouse_x, mouse_y)
 // Returns 0 to 1 in boxed coordinates. Take input from mouse positions.
 function GetNormalizedBoxCoordsFromMouseCoords(c, mouse_x, mouse_y)
 {
-	var yratio = c.height / overall_height;
-	var xratio = yratio;
-	var yposition = yratio * overall_box_startx;
-	var xposition = xratio * overall_box_starty;
-
 	var r = GetMainRegion(c);
+	var yratio = r.height / overall_height;
+	var xratio = yratio;
+
+	// Note: don't get x and y confused.
+	var xposition = xratio * overall_box_startx;
+	var yposition = yratio * overall_box_starty;
 
 	var xs = (mouse_x - (r.x + xposition)) / (xratio * box_width);
 	var ys = (mouse_y - (r.y + yposition)) / (yratio * box_height);
+
+	console.log(mouse_x, mouse_y, xposition, yposition, xratio, yratio)
 
 	var obj = {
 	    x: xs,
@@ -350,7 +353,7 @@ function DrawReorderingArea(c)
 		ordered_menu_alpha_target = 0;
 		let mouse = getMousePosition(cachedEvent);
 
-		let normalizedPos = GetNormalizedBoxCoordsFromMouseCoords(c, mouse_target_pos_x, mouse_target_pos_y);
+		let normalizedPos = GetNormalizedCoordsFromMouseCoords(c, mouse_target_pos_x, mouse_target_pos_y);
 		let unityPosX = normalizedPos.x * unity_width
 		let unityPosY = normalizedPos.y * unity_height
 
@@ -504,9 +507,11 @@ function RedrawBackground(c)
 
 	ctx.globalAlpha = 0.5;
 	ctx.fillStyle = "#FF0000";
-	// var start = GetBoxCoordsFromNormalizeds(c, 0, 0);
-	// var end = GetBoxCoordsFromNormalizeds(c, 1, 1);
-  //ctx.fillRect(start.x, start.y, end.x - start.x, end.y - start.y);
+	
+	var start = GetMouseCoordsFromBoxNormalizedCoords(c, 0, 0);
+	var end = GetMouseCoordsFromBoxNormalizedCoords(c, 1, 1);
+  ctx.fillRect(start.x, start.y, end.x - start.x, end.y - start.y);
+  
   ctx.globalAlpha = 1.0;
 
 	ctx.globalAlpha = 0.7;
@@ -660,7 +665,7 @@ function getUnityPosition(c, mouse_x, mouse_y)
 	circler = circle_radius / overall_height * r.height;
 
 	// I also need current x, y, in box coords, which I can use to line up.
-	var box = GetNormalizedCoordsFromMouseCoords(c, mouse_x, mouse_y);
+	var box = GetNormalizedBoxCoordsFromMouseCoords(c, mouse_x, mouse_y);
 	//console.log(box.x, box.y);
 
 	// First of all I want to shift image by boxcoords * unity_width, same for height
@@ -706,7 +711,7 @@ function onMouseMove(e)
 
 	var ctx = c.getContext("2d");
 
-	if (IsInBox(c, x, y))
+	if (IsInBox(c, x, y) || mouse_target_pos_x == 0 && mouse_target_pos_y == 0)
 	{
 		mouse_target_pos_x = x;
 		mouse_target_pos_y = y;
