@@ -71,6 +71,7 @@ const event_coords_ratio = 0.88186
 const min_width = 1280
 const min_height = 720
 
+let beforeFirstOrderChangeEver = true;
 let currently_in_box = false
 let reordering_menu_dissapeared = true
 let cached_event_ordering = []
@@ -83,6 +84,8 @@ let cachedEvent = {clientX: 0, clientY: 0}
 let current_fps_second = 0;
 let frames_kept = 0;
 let current_fps = 0;
+
+let reorderingMenuAlphaTimers = [];
 
 /*
 const ms_per_second = 1000;
@@ -107,7 +110,7 @@ let ordered_menu_alpha = 1;
 
 let reordering_menu_alpha_target = 1;
 let ordered_menu_alpha_target = 1;
-const alpha_menu_change_speed = 0.1;
+const alpha_menu_change_speed = 0.07;
 
 var getTextHeight = function(font) {
 
@@ -326,9 +329,26 @@ let m = 0;
 // Clamp number between two values with the following line:
 const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 
+
+var isTimerOn = false;
+var allowForOrderChange = false;
+function myTimer() {
+	reordering_menu_alpha_target = 1;
+	isTimerOn = false;
+	allowForOrderChange = true;
+  // const d = new Date();
+  // document.getElementById("demo").innerHTML = d.toLocaleTimeString();
+  // KickoffAlphaChange.
+  // Idea: change alpha on the first stop?
+  reorderingMenuAlphaTimers.shift();
+
+
+	beforeFirstOrderChangeAfterRefresh = true;
+}
+
+
 function DrawReorderingArea(c)
 {
-
 	var ctx = c.getContext("2d");
 	startxy = GetMainRegion(c);
 
@@ -347,45 +367,46 @@ function DrawReorderingArea(c)
 	{
 		// console.log("out of box")
 		currently_in_box = false;
+		allowForOrderChange = false;
 		reordering_menu_alpha_target = 0;
 		ordered_menu_alpha_target = 1;
-		firstchange = false;
+
+		// Cancel existing timers
+		for (timer in reorderingMenuAlphaTimers)
+		{
+			clearTimeout(timer);
+		}
+		reorderingMenuAlphaTimers = [];
 	}
 	else
 	{
 		// console.log("in box")
-		reordering_menu_alpha_target = 1;
-		ordered_menu_alpha_target = 0;
-		let mouse = getMousePosition(cachedEvent);
 
+		// Move unity preview location
+		let mouse = getMousePosition(cachedEvent);
 		let normalizedPos = GetNormalizedCoordsFromMouseCoords(c, mouse_inbox_target_pos_x, mouse_inbox_target_pos_y);
 		let unityPosX = normalizedPos.x * unity_width
 		let unityPosY = normalizedPos.y * unity_height
 
+		// Immediately fade out ordered menu.
+		ordered_menu_alpha_target = 0;
 
-		cached_event_ordering = []
-		for (let i = 0; i < Events.length; i++)
+		if (cached_event_ordering.length == 0)
 		{
-			var dist = GetDistance(Events[i]["X"] * event_coords_ratio, Events[i]["Y"] * event_coords_ratio, unityPosX, unityPosY);
-			var item = {"index": i, "distance": dist};
-			cached_event_ordering.push(item);
-		}
+			// one-time initialization of original lists.
+				
+			// Push all events to a default list.
+			cached_event_ordering = []
+			for (let i = 0; i < Events.length; i++)
+			{
+				// Note: distance is likely not needed here.
+				var dist = GetDistance(Events[i]["X"] * event_coords_ratio, Events[i]["Y"] * event_coords_ratio, unityPosX, unityPosY);
+				var item = {"index": i, "distance": dist};
+				cached_event_ordering.push(item);
+			}
 
-
-
-
-		if (!currently_in_box)
-		{
-			// Create new default ordering
-			currently_in_box = true;
-			beforefirstchange = true;
-			beforefirstrefresh = true;
-			beforesecondchange = true;
-			beforefirstdidnotchange = true;
-			last_change_time_ms = last_refresh_time_ms
-
-
-			//cached_event_ordering.sort((a,b) => (a.distance > b.distance) ? 1 : ((a.distance < b.distance) ? -1 : 0))
+			// Create new default ordering (this needs to happen after mouse stops moving).
+			// Create temporary lists
 			oddlist = []
 			evenlist = []
 
@@ -393,69 +414,108 @@ function DrawReorderingArea(c)
 			{
 				i % 2 == 0 ? evenlist.push(cached_event_ordering[i]) : oddlist.push(cached_event_ordering[i]);
 			}
-			// console.log(Events)
-
-			console.log("lists")
-			console.log(JSON.stringify(cached_event_ordering))
 		}
 
-		let oddlist_temp = JSON.parse(JSON.stringify(oddlist));
-		let evenlist_temp = JSON.parse(JSON.stringify(evenlist));
 
-		if ((current_time_ms - last_refresh_time_ms) > recheck_interval_ms)
+		if (!currently_in_box)
 		{
-			last_refresh_time_ms = current_time_ms;
+			// Just enterted box
+			currently_in_box = true;
 
-			if (current_time_ms - last_mouse_move_time_ms > wait_mouse_still_seconds_for_list_change)
+			if (!isTimerOn)
 			{
-				for (let i = 0; i < oddlist.length; i++)
-				{
-					oddlist[i]["distance"] = GetDistance(Events[oddlist[i]["index"]]["X"] * event_coords_ratio, 
-						Events[oddlist[i]["index"]]["Y"] * event_coords_ratio, unityPosX, unityPosY);
-				}
-				oddlist.sort((a,b) => (a.distance > b.distance) ? 1 : ((a.distance < b.distance) ? -1 : 0))
+				isTimerOn = true;
+				// reorderingMenuAlphaTimers.push(setTimeout(myTimer, 800));
+				reorderingMenuAlphaTimers.push(setTimeout(myTimer, 600));
+			}
+		}
 
-				for (let i = 0; i < evenlist.length; i++)
-				{
-					evenlist[i]["distance"] = GetDistance(Events[evenlist[i]["index"]]["X"] * event_coords_ratio, 
-						Events[evenlist[i]["index"]]["Y"] * event_coords_ratio, unityPosX, unityPosY);
-				}
-				evenlist.sort((a,b) => (a.distance > b.distance) ? 1 : ((a.distance < b.distance) ? -1 : 0))
 
-				let changed = false
+		beforefirstchange = true;
+		beforefirstrefresh = true;
+		beforesecondchange = true;
+		beforefirstdidnotchange = true;
+		
+		// Note: if this doesn't work go with a totally alarm based approach.
+		if (allowForOrderChange) 
+		{
+			// This means that the timer is up, we can start ordering events now.
 
-				for (let i = 0; i < 15; i++)
-				{
-					if(oddlist_temp[i]["index"] != oddlist[i]["index"]) changed = true;
-				}
-				for (let i = 0; i < 15; i++)
-				{
-					if(evenlist_temp[i]["index"] != evenlist[i]["index"]) changed = true;
-				}
+			// Use timing determine whether to recheck for distance
+			if ((current_time_ms - last_refresh_time_ms) > recheck_interval_ms)
+			{
+				last_refresh_time_ms = current_time_ms;
 
-				if (changed)
+				// Look for mouse stops
+				if (current_time_ms - last_mouse_move_time_ms > wait_mouse_still_seconds_for_list_change)
 				{
-					beforefirstchange = false;
-					oddlist_cached = oddlist_temp
-					evenlist_cached = evenlist_temp
-					last_change_time_ms = last_refresh_time_ms
-				}
-				else
-				{
-					beforefirstdidnotchange = false;
+					// Duplicate lists
+					let oddlist_temp = JSON.parse(JSON.stringify(oddlist));
+					let evenlist_temp = JSON.parse(JSON.stringify(evenlist));
+
+
+					// Calculate distance for oddlist and sort
+					for (let i = 0; i < oddlist.length; i++)
+					{
+						oddlist[i]["distance"] = GetDistance(Events[oddlist[i]["index"]]["X"] * event_coords_ratio, 
+							Events[oddlist[i]["index"]]["Y"] * event_coords_ratio, unityPosX, unityPosY);
+					}
+					oddlist.sort((a,b) => (a.distance > b.distance) ? 1 : ((a.distance < b.distance) ? -1 : 0))
+
+					// Same, but for even list.
+					for (let i = 0; i < evenlist.length; i++)
+					{
+						evenlist[i]["distance"] = GetDistance(Events[evenlist[i]["index"]]["X"] * event_coords_ratio, 
+							Events[evenlist[i]["index"]]["Y"] * event_coords_ratio, unityPosX, unityPosY);
+					}
+					evenlist.sort((a,b) => (a.distance > b.distance) ? 1 : ((a.distance < b.distance) ? -1 : 0))
+
+					// Check for change
+					let changed = false
+
+					for (let i = 0; i < 15; i++)
+					{
+						if(oddlist_temp[i]["index"] != oddlist[i]["index"]) changed = true;
+					}
+					for (let i = 0; i < 15; i++)
+					{
+						if(evenlist_temp[i]["index"] != evenlist[i]["index"]) changed = true;
+					}
+
+					if (changed)
+					{
+						beforefirstchange = false;
+						oddlist_cached = oddlist_temp
+						evenlist_cached = evenlist_temp
+						last_change_time_ms = current_time_ms
+					}
+					else
+					{
+						beforefirstdidnotchange = false;
+					}
 				}
 			}
 		}
 
+
+		// Not sure what this is for
+		// last_change_time_ms = last_refresh_time_ms
+
+
 		let time_elapsed = current_time_ms - last_change_time_ms
 
+		console.log(reordering_menu_alpha);
 		if (time_elapsed < fade_out_ms)
 		{
-			current_alpha = (1 - time_elapsed / fade_out_ms) * reordering_menu_alpha
+			if (!beforeFirstOrderChangeAfterRefresh)
+			{
+				current_alpha = (1 - time_elapsed / fade_out_ms) * reordering_menu_alpha
+			}
 		}
 		else if (time_elapsed < fade_out_ms + fade_in_ms)
 		{
 			beforefirstrefresh = false;
+			beforeFirstOrderChangeAfterRefresh = false;
 			oddlist_cached = oddlist
 			evenlist_cached = evenlist
 			current_alpha = ((time_elapsed - fade_out_ms) / fade_in_ms) * reordering_menu_alpha
@@ -465,10 +525,9 @@ function DrawReorderingArea(c)
 			current_alpha = reordering_menu_alpha;
 		}
 
-		//if (beforefirstchange || beforefirstrefresh || beforesecondchange) {current_alpha = 0;}
-		//if (beforefirstchange || beforefirstrefresh || beforefirstdidnotchange) {current_alpha = 0;}
-		//if (beforefirstrefresh) {current_alpha = 0;}
 
+		// This thing about the second change... I think it might not be needed now?
+		/*
 		oddlist2 = []
 		evenlist2 = []
 
@@ -490,9 +549,12 @@ function DrawReorderingArea(c)
 			}
 		}
 
+		// Limit the alpha to 0 until the alpha changes.
 		if (changed2 && beforefirstrefresh && beforefirstchange) {current_alpha = 0;}
+		*/
 
 
+		// Positioning and coloring code, don't have to worry about it.
 		ctx.fillStyle = "#eeeeee";
 
 		// Odd on top, even below.
@@ -555,7 +617,7 @@ function RedrawBackground(c)
 	
 	var start = GetMouseCoordsFromBoxNormalizedCoords(c, 0, 0);
 	var end = GetMouseCoordsFromBoxNormalizedCoords(c, 1, 1);
-  ctx.fillRect(start.x, start.y, end.x - start.x, end.y - start.y);
+  // ctx.fillRect(start.x, start.y, end.x - start.x, end.y - start.y);
   
   ctx.globalAlpha = 1.0;
 
@@ -674,7 +736,16 @@ function animate(){
 	let distAlphaReorder = reordering_menu_alpha_target - reordering_menu_alpha;
 	let distAlphaOrder = ordered_menu_alpha_target - ordered_menu_alpha;
 
-	reordering_menu_alpha = reordering_menu_alpha + (distAlphaReorder * alpha_menu_change_speed)
+	// Todo: slow the fade in? Yeah.
+	if (distAlphaReorder < 0)
+	{
+		reordering_menu_alpha = reordering_menu_alpha + (distAlphaReorder * alpha_menu_change_speed * 2)
+	}
+	else
+	{
+		reordering_menu_alpha = reordering_menu_alpha + (distAlphaReorder * alpha_menu_change_speed)
+	}
+
 	ordered_menu_alpha = ordered_menu_alpha + (distAlphaOrder * alpha_menu_change_speed)
 
 	// Drawing stuff, consider moving to animation step
