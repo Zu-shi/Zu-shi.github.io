@@ -214,7 +214,7 @@ function GetMainRegion(c)
 	    height: new_overall_height,
 	};
 
-	console.log("regionx: ", x, " regionheight: ", new_overall_height)
+	//console.log("regionx: ", x, " regionheight: ", new_overall_height)
 
 	return obj;
 }
@@ -266,7 +266,7 @@ function GetNormalizedBoxCoordsFromMouseCoords(c, mouse_x, mouse_y)
 	var xs = (mouse_x - (r.x + xposition)) / (xratio * box_width);
 	var ys = (mouse_y - (r.y + yposition)) / (yratio * box_height);
 
-	console.log(mouse_x, mouse_y, xposition, yposition, xratio, yratio)
+	//console.log(mouse_x, mouse_y, xposition, yposition, xratio, yratio)
 
 	var obj = {
 	    x: xs,
@@ -280,7 +280,7 @@ function GetNormalizedBoxCoordsFromMouseCoords(c, mouse_x, mouse_y)
 function IsInBox(c, mouse_x, mouse_y)
 {
 	var coords = GetNormalizedBoxCoordsFromMouseCoords(c, mouse_x, mouse_y);
-	console.log(coords.x, coords.y)
+	//console.log(coords.x, coords.y)
 	return coords.x > 0 && coords.x < 1 && coords.y > 0 && coords.y < 1;
 }
 
@@ -332,7 +332,7 @@ function DrawReorderingArea(c)
 	var ctx = c.getContext("2d");
 	startxy = GetMainRegion(c);
 
-	// Shadow starts at 340
+	// Shadow starts at 380
 	// Let font size remain the same
 	const full_centering_location_x = 380
 	starty = startxy.y + 30;
@@ -363,6 +363,17 @@ function DrawReorderingArea(c)
 		let unityPosY = normalizedPos.y * unity_height
 
 
+		cached_event_ordering = []
+		for (let i = 0; i < Events.length; i++)
+		{
+			var dist = GetDistance(Events[i]["X"] * event_coords_ratio, Events[i]["Y"] * event_coords_ratio, unityPosX, unityPosY);
+			var item = {"index": i, "distance": dist};
+			cached_event_ordering.push(item);
+		}
+
+
+
+
 		if (!currently_in_box)
 		{
 			// Create new default ordering
@@ -373,18 +384,6 @@ function DrawReorderingArea(c)
 			beforefirstdidnotchange = true;
 			last_change_time_ms = last_refresh_time_ms
 
-			// console.log(Events)
-
-			cached_event_ordering = []
-			for (let i = 0; i < Events.length; i++)
-			{
-				var dist = GetDistance(Events[i]["X"] * event_coords_ratio, Events[i]["Y"] * event_coords_ratio, unityPosX, unityPosY);
-				var item = {"index": i, "distance": dist};
-				cached_event_ordering.push(item);
-			}
-
-			console.log("lists")
-			console.log(JSON.stringify(cached_event_ordering))
 
 			//cached_event_ordering.sort((a,b) => (a.distance > b.distance) ? 1 : ((a.distance < b.distance) ? -1 : 0))
 			oddlist = []
@@ -394,6 +393,10 @@ function DrawReorderingArea(c)
 			{
 				i % 2 == 0 ? evenlist.push(cached_event_ordering[i]) : oddlist.push(cached_event_ordering[i]);
 			}
+			// console.log(Events)
+
+			console.log("lists")
+			console.log(JSON.stringify(cached_event_ordering))
 		}
 
 		let oddlist_temp = JSON.parse(JSON.stringify(oddlist));
@@ -432,10 +435,6 @@ function DrawReorderingArea(c)
 
 				if (changed)
 				{
-					if (!beforefirstchange)
-					{
-						beforesecondchange = false;
-					}
 					beforefirstchange = false;
 					oddlist_cached = oddlist_temp
 					evenlist_cached = evenlist_temp
@@ -467,8 +466,32 @@ function DrawReorderingArea(c)
 		}
 
 		//if (beforefirstchange || beforefirstrefresh || beforesecondchange) {current_alpha = 0;}
-		// if (beforefirstchange || beforefirstrefresh || beforefirstdidnotchange) {current_alpha = 0;}
-		if (beforefirstrefresh) {current_alpha = 0;}
+		//if (beforefirstchange || beforefirstrefresh || beforefirstdidnotchange) {current_alpha = 0;}
+		//if (beforefirstrefresh) {current_alpha = 0;}
+
+		oddlist2 = []
+		evenlist2 = []
+
+		for (let i = 0; i < cached_event_ordering.length; i++)
+		{
+			i % 2 == 0 ? evenlist2.push(cached_event_ordering[i]) : oddlist2.push(cached_event_ordering[i]);
+		}
+
+		changed2 = true;
+		if (oddlist_cached.length != 0)
+		{
+			for (let i = 0; i < 15; i++)
+			{
+				if(oddlist2[i]["index"] != oddlist_cached[i]["index"]) changed2 = false;
+			}
+			for (let i = 0; i < 15; i++)
+			{
+				if(evenlist2[i]["index"] != evenlist_cached[i]["index"]) changed2 = false;
+			}
+		}
+
+		if (changed2 && beforefirstrefresh && beforefirstchange) {current_alpha = 0;}
+
 
 		ctx.fillStyle = "#eeeeee";
 
@@ -483,7 +506,7 @@ function DrawReorderingArea(c)
 		starty = centering_location_y;
 		for (let i in evenlist_cached)
 		{
-			ctx.globalAlpha = clamp(current_alpha, 0, 1) - i * 0.05;
+			ctx.globalAlpha = clamp(clamp(current_alpha, 0, 1) - i * 0.05, 0, 1);
 			var font = "lighter " + font_size + "px Gabriola";
 			let font_height = getTextHeight(font).height;
 			ctx.font = font;
@@ -498,7 +521,7 @@ function DrawReorderingArea(c)
 		starty = full_centering_location_y / overall_height * startxy.height - font_size * 1.5;
 		for (let i in oddlist_cached)
 		{
-			ctx.globalAlpha = clamp(current_alpha, 0, 1) - i * 0.05;
+			ctx.globalAlpha = clamp(clamp(current_alpha, 0, 1) - i * 0.05, 0, 1);
 			var font = "lighter " + font_size + "px Gabriola";
 			let font_height = getTextHeight(font).height;
 			ctx.font = font;
