@@ -346,9 +346,34 @@ function myTimer() {
 	beforeFirstOrderChangeAfterRefresh = true;
 }
 
-function DrawPoem(index, alpha)
+function DrawPoem(c, index, alpha)
 {
+	var ctx = c.getContext("2d");
+	startxy = GetMainRegion(c);
 
+	startyTitle = 1868 / overall_height * startxy.height;
+	startyPoem = 1948 / overall_height * startxy.height;
+	startx = startxy.x + 1920 / overall_width * startxy.width 
+
+	ctx.textAlign = 'center';
+	ctx.globalAlpha = alpha;
+	var font = "lighter " + 35 + "px Gabriola";
+	ctx.font = font;
+	ctx.fillText(Events[index]["Name"], startx, startyTitle);
+
+
+	var font = "lighter " + 26 + "px Gabriola";
+	ctx.font = font;
+
+  var texts = Events[index]["Poem"].split("\n");
+
+  for (i in texts)
+  {
+		ctx.fillText(texts[i], startx, startyPoem);
+		startyPoem += 30;
+	}
+
+	// var measureText = ctx.measureText(Events[oddlist_cached[i]["index"]]["Name"]);
 }
 
 function DrawReorderingArea(c)
@@ -569,6 +594,8 @@ function DrawReorderingArea(c)
 
 		var font_size = 40;
 
+		ctx.textAlign = 'left';
+
 		starty = centering_location_y;
 		for (let i in evenlist_cached)
 		{
@@ -599,15 +626,22 @@ function DrawReorderingArea(c)
 		}
 
 		ctx.globalAlpha = 1;
+
+		if (oddlist_cached.length != 0 && evenlist_cached != 0)
+		{
+			//console.log(oddlist_cached);
+			var closerEvent = Events[oddlist_cached[0]["index"]]["distance"] < Events[evenlist_cached[0]["index"]]["distance"] ? oddlist_cached[0] : evenlist_cached[0];
+			var index = closerEvent["index"];
+
+			// Draw the poem
+			DrawPoem(c, index, clamp(current_alpha, 0, 1));
+		}
+
+		const full_fps_location_x = 3700
+		ctx.font = "lighter " + font_size + "px Gabriola";
+		ending_location_x = full_fps_location_x / overall_width * startxy.width + startxy.x;
+		ctx.fillText(current_fps, ending_location_x, startxy.y + 30);
 	}
-
-	// Draw the poem
-	DrawPoem(index, clamp(clamp(current_alpha, 0, 1) - i * 0.05, 0, 1));
-
-	const full_fps_location_x = 3700
-	ctx.font = "lighter " + font_size + "px Gabriola";
-	ending_location_x = full_fps_location_x / overall_width * startxy.width + startxy.x;
-	ctx.fillText(current_fps, ending_location_x, startxy.y + 30);
 }
 
 function RedrawBackground(c)
@@ -685,7 +719,8 @@ function DrawScrollingBarArea(c)
 	gradient.addColorStop(0.8, 'rgba(238, 238, 238, 0.1)');
 	gradient.addColorStop(1, 'rgba(238, 238, 238, 0)');
 	ctx.fillStyle = gradient;
-
+	
+	ctx.textAlign = 'left';
 	for (let i in Events)
 	{
 		ctx.fillText(Events[i]["Name"], starting_location_x, starty);
