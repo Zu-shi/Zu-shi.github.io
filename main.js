@@ -351,26 +351,26 @@ function DrawPoem(c, index, alpha)
 	var ctx = c.getContext("2d");
 	startxy = GetMainRegion(c);
 
-	startyTitle = 1868 / overall_height * startxy.height;
-	startyPoem = 1948 / overall_height * startxy.height;
+	startyTitle = 1848 / overall_height * startxy.height;
+	startyPoem = 1903 / overall_height * startxy.height;
 	startx = startxy.x + 1920 / overall_width * startxy.width 
 
 	ctx.textAlign = 'center';
 	ctx.globalAlpha = alpha;
-	var font = "lighter " + 35 + "px Gabriola";
+	var font = "lighter " + 32 + "px Gabriola";
 	ctx.font = font;
 	ctx.fillText(Events[index]["Name"], startx, startyTitle);
 
 
-	var font = "lighter " + 26 + "px Gabriola";
+	// 1080 / 26 = 42
+	var font = "lighter " + overall_height / 100 + "px Gabriola";
 	ctx.font = font;
 
   var texts = Events[index]["Poem"].split("\n");
-
   for (i in texts)
   {
 		ctx.fillText(texts[i], startx, startyPoem);
-		startyPoem += 30;
+		startyPoem += overall_height / 100 + 4;
 	}
 
 	// var measureText = ctx.measureText(Events[oddlist_cached[i]["index"]]["Name"]);
