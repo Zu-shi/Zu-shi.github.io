@@ -7,11 +7,13 @@ console.log(Events);
 // start point = 1232x256
 // 3840x2160
 
+/*
 var web = new Image();
 web.onload = function(){
 	RedrawCanvas();
 }
 web.src = 'Assets\\BBB_website_design_4k.webp';
+*/
 
 var decorative = new Image();
 decorative.onload = function(){
@@ -23,13 +25,13 @@ var scrollbackground = new Image();
 scrollbackground.onload = function(){
 	RedrawCanvas();
 }
-scrollbackground.src = 'Assets\\Brackground for Scroll List.webp';
+scrollbackground.src = 'Assets\\Background For Scrolling List (NEW).png';
 
 var looking_glass = new Image();
 looking_glass.onload = function(){
 	RedrawCanvas();
 }
-looking_glass.src = 'Assets\\EEE_Looking_Glass_No_Vert_Bar.webp';
+looking_glass.src = 'Assets\\Looking Glass (NEW).png';
 
 var unity = new Image();
 unity.onload = function(){
@@ -42,6 +44,9 @@ scrollBar.onload = function(){
 	RedrawCanvas();
 }
 scrollBar.src = 'Assets\\Scroll List Scroll Bar.webp';
+
+
+
 
 /*
 var eventFont = new FontFace('myFont', 'url(Assets\\GABRIOLA.TTF)');
