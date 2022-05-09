@@ -107,9 +107,11 @@ let beforefirstdidnotchange = false;
 
 let reordering_menu_alpha = 1;
 let ordered_menu_alpha = 1;
+let ordered_menu_poem_alpha = 0;
 
 let reordering_menu_alpha_target = 1;
 let ordered_menu_alpha_target = 1;
+let ordered_menu_poem_alpha_target = 0;
 const alpha_menu_change_speed = 0.07;
 
 var getTextHeight = function(font) {
@@ -124,7 +126,6 @@ var getTextHeight = function(font) {
   body.append(div);
 
   try {
-
     var result = {};
 
     block.css({ verticalAlign: 'baseline' });
@@ -134,7 +135,6 @@ var getTextHeight = function(font) {
     result.height = block.offset().top - text.offset().top;
 
     result.descent = result.height - result.ascent;
-
   } finally {
     div.remove();
   }
@@ -272,8 +272,8 @@ function GetNormalizedBoxCoordsFromMouseCoords(c, mouse_x, mouse_y)
 	//console.log(mouse_x, mouse_y, xposition, yposition, xratio, yratio)
 
 	var obj = {
-	    x: xs,
-	    y: ys,
+		x: xs,
+		y: ys,
 	};
 
 	return obj;
@@ -351,6 +351,8 @@ function DrawPoem(c, index, alpha)
 	var ctx = c.getContext("2d");
 	startxy = GetMainRegion(c);
 
+	ctx.fillStyle = "#eeeeee";
+	
 	startyTitle = 1848 / overall_height * startxy.height;
 	startyPoem = 1903 / overall_height * startxy.height;
 	startx = startxy.x + 1920 / overall_width * startxy.width 
@@ -409,6 +411,9 @@ function DrawReorderingArea(c)
 	}
 	else
 	{
+		ordered_menu_poem_alpha_target = 0
+		clearTimeout(poem_change_timer);
+
 		// console.log("in box")
 
 		// Move unity preview location
@@ -684,6 +689,7 @@ function RedrawBackground(c)
 
 function DrawScrollingBarArea(c)
 {
+	DrawPoem(c, cached_poem_index, ordered_menu_poem_alpha);
 	DrawBox(c);
 
 	var ctx = c.getContext("2d");
@@ -777,6 +783,11 @@ function animate(){
 
 	let distAlphaReorder = reordering_menu_alpha_target - reordering_menu_alpha;
 	let distAlphaOrder = ordered_menu_alpha_target - ordered_menu_alpha;
+
+
+	let distPoemAlpha = ordered_menu_poem_alpha_target - ordered_menu_poem_alpha;
+	ordered_menu_poem_alpha = ordered_menu_poem_alpha + (distPoemAlpha * alpha_menu_change_speed)
+
 
 	// Todo: slow the fade in? Yeah.
 	if (distAlphaReorder < 0)
@@ -923,6 +934,7 @@ function RedrawCanvas()
 
 	var ctx = c.getContext("2d");
 	ctx.clearRect(0, 0, c.width, c.height);
+
 	/*
 	ctx.moveTo(0, 0);
 	ctx.lineTo(c.width, c.height);
@@ -931,17 +943,28 @@ function RedrawCanvas()
 	ctx.lineWidth = 10
 	ctx.stroke();
 	*/
+
 	RedrawBackground(c);
 }
 
+function onFirstSetup()
+{
+	console.log( "FirstSetup!" );
+	var c = document.getElementById("canvas");
+	var coords = GetMouseCoordsFromBoxNormalizedCoords(c, 0.4517, 0.545)
+	mouse_inbox_target_pos_x = coords.x;
+	mouse_inbox_target_pos_y = coords.y;
+}
+
 $( document ).ready(function() {
-    console.log( "ready!" );
+  console.log( "ready!" );
 	document.addEventListener('mousemove', onMouseMove);
 	document.addEventListener('mousedown', onMouseDown);
 	document.addEventListener('click', onMouseClick);
 	document.addEventListener('wheel', onScroll);
 	document.addEventListener('mouseup', onMouseUp);
-    RedrawCanvas();
+	RedrawCanvas();
+	onFirstSetup();
 	animate();
 });
 
@@ -993,6 +1016,8 @@ function onMouseClick(e)
 	console.log("click")
 }
 
+var cached_poem_index = 0;
+var poem_change_timer = 0;
 function hitTextTest(c, mouse_pos_raw)
 {
 	mouse_x = convertHtmlDistanceToNormalizedDistanceX(c, mouse_pos_raw.x)
@@ -1015,6 +1040,15 @@ function hitTextTest(c, mouse_pos_raw)
 				Events[i]["Y"] * event_coords_ratio / unity_height)
 			mouse_inbox_target_pos_x = coords.x;
 			mouse_inbox_target_pos_y = coords.y;
+
+
+			ordered_menu_poem_alpha_target = 0
+			clearTimeout(poem_change_timer);
+			poem_change_timer = setTimeout(
+				function(index){
+					ordered_menu_poem_alpha_target = 1;
+					console.log(ordered_menu_poem_alpha_target);
+					cached_poem_index = index;}, 800, i);
 		}
 	}
 }
