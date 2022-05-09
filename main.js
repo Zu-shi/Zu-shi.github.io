@@ -35,7 +35,7 @@ var unity = new Image();
 unity.onload = function(){
 	RedrawCanvas();
 }
-unity.src = 'Assets\\AAA_We_Are_Unity_(WebP 90_).webp';
+unity.src = 'Assets\\AAA We Are Unity (Extend Painting).jpg';
 
 var scrollBar = new Image();
 scrollBar.onload = function(){
@@ -352,7 +352,7 @@ function DrawPoem(c, index, alpha)
 	startxy = GetMainRegion(c);
 
 	ctx.fillStyle = "#eeeeee";
-	
+
 	startyTitle = 1848 / overall_height * startxy.height;
 	startyPoem = 1903 / overall_height * startxy.height;
 	startx = startxy.x + 1920 / overall_width * startxy.width 
@@ -806,7 +806,9 @@ function animate(){
 	var ctx = c.getContext("2d");
 	ctx.clearRect(0, 0, c.width, c.height);
 	unityPos = getUnityPosition(c, mouse_inbox_current_pos_x, mouse_inbox_current_pos_y)
-	ctx.drawImage(unity, unityPos.x, unityPos.y, unity_width, unity_height);
+
+	// For expanded image.
+	ctx.drawImage(unity, unityPos.x - 1000, unityPos.y - 1000, unity_width + 2000, unity_height + 2000);
 	//console.log(unityPos.x, unityPos.y);
 	RedrawBackground(c);
 	
