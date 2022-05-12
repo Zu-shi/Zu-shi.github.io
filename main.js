@@ -31,7 +31,7 @@ var looking_glass = new Image();
 looking_glass.onload = function(){
 	RedrawCanvas();
 }
-looking_glass.src = 'Assets\\Looking Glass (NEW).png';
+looking_glass.src = 'Assets\\Looking Glass (with white haze).png';
 
 var unity = new Image();
 unity.onload = function(){
@@ -67,9 +67,14 @@ const aspect_ratio = overall_width / overall_height;
 
 const circle_center_x = 1920
 const circle_center_y = 1200
-const circle_radius = 420
-const unity_width = 16295
-const unity_height = 4000
+const circle_radius = 1210
+
+
+
+const unity_width = 18295
+const unity_height = 6000
+const old_unity_width = 16295
+const old_unity_height = 4000
 
 const event_coords_ratio = 0.88186
 
@@ -424,8 +429,8 @@ function DrawReorderingArea(c)
 		// Move unity preview location
 		let mouse = getMousePosition(cachedEvent);
 		let normalizedPos = GetNormalizedCoordsFromMouseCoords(c, mouse_inbox_target_pos_x, mouse_inbox_target_pos_y);
-		let unityPosX = normalizedPos.x * unity_width
-		let unityPosY = normalizedPos.y * unity_height
+		let unityPosX = normalizedPos.x * (unity_width)
+		let unityPosY = normalizedPos.y * (unity_height)
 
 		// Immediately fade out ordered menu.
 		ordered_menu_alpha_target = 0;
@@ -813,7 +818,7 @@ function animate(){
 	unityPos = getUnityPosition(c, mouse_inbox_current_pos_x, mouse_inbox_current_pos_y)
 
 	// For expanded image.
-	ctx.drawImage(unity, unityPos.x - 1000, unityPos.y - 1000, unity_width + 2000, unity_height + 2000);
+	ctx.drawImage(unity, unityPos.x, unityPos.y, unity_width, unity_height);
 	//console.log(unityPos.x, unityPos.y);
 	RedrawBackground(c);
 	
@@ -848,15 +853,19 @@ function getUnityPosition(c, mouse_x, mouse_y)
 
 	// First of all I want to shift image by boxcoords * unity_width, same for height
 	// Then I want to do the half shift to center it. 
-	var unity_x = circlex + (1 - box.x) * unity_width - unity_width;
-	var unity_y = circley + (1 - box.y) * unity_height - unity_height;
+	var unity_x = circlex + (1 - box.x) * old_unity_width - old_unity_width - 1000;
+	var unity_y = circley + (1 - box.y) * old_unity_height - old_unity_height - 1000;
+
+	//var buffer = 20;
+	// Shift so that there is a minimum buffer on all ends of the image.
 
 	/*
 	var buffer = 20;
+	circler += 1000;
 	if (unity_x > circlex - circler - buffer) {unity_x = circlex - circler - buffer};
-	if (unity_x + unity_width < circlex + circler + buffer) {unity_x = circlex + circler - unity_width + buffer}; 
+	if (unity_x + unity_width < circlex + circler + buffer) {unity_x = circlex + circler - old_unity_width + buffer}; 
 	if (unity_y > circley - circler - buffer) {unity_y = circley - circler - buffer};
-	if (unity_y + unity_height < circley + circler + buffer) {unity_y = circley + circler - unity_height + buffer}; 
+	if (unity_y + unity_height < circley + circler + buffer) {unity_y = circley + circler - old_unity_height + buffer}; 
 	*/
 
 	var output = {
@@ -956,6 +965,13 @@ function RedrawCanvas()
 
 function onFirstSetup()
 {
+
+	for (var i = 0; i < Events.length; i++)
+	{
+		Events[i].X = Events[i].X + 1000;
+		Events[i].Y = Events[i].Y + 1000;
+	}
+
 	console.log( "FirstSetup!" );
 	var c = document.getElementById("canvas");
 	var coords = GetMouseCoordsFromBoxNormalizedCoords(c, 0.4517, 0.545)
