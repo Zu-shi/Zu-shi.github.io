@@ -114,6 +114,7 @@ let beforefirstchange = false;
 let beforesecondchange = false;
 let beforefirstrefresh = false;
 let beforefirstdidnotchange = false;
+let	beforeFirstOrderChangeAfterRefresh = true;
 
 let reordering_menu_alpha = 1;
 let ordered_menu_alpha = 1;
@@ -353,7 +354,6 @@ function myTimer() {
   reorderingMenuAlphaTimers.shift();
 
 
-	beforeFirstOrderChangeAfterRefresh = true;
 }
 
 function DrawPoem(c, index, alpha)
@@ -428,9 +428,9 @@ function DrawReorderingArea(c)
 
 		// Move unity preview location
 		let mouse = getMousePosition(cachedEvent);
-		let normalizedPos = GetNormalizedCoordsFromMouseCoords(c, mouse_inbox_target_pos_x, mouse_inbox_target_pos_y);
-		let unityPosX = normalizedPos.x * (unity_width)
-		let unityPosY = normalizedPos.y * (unity_height)
+		let normalizedPos = GetNormalizedBoxCoordsFromMouseCoords(c, mouse_inbox_target_pos_x, mouse_inbox_target_pos_y);
+		let unityPosX = normalizedPos.x * old_unity_width
+		let unityPosY = normalizedPos.y * old_unity_height
 
 		// Immediately fade out ordered menu.
 		ordered_menu_alpha_target = 0;
@@ -548,7 +548,7 @@ function DrawReorderingArea(c)
 
 		let time_elapsed = current_time_ms - last_change_time_ms
 
-		console.log(reordering_menu_alpha);
+		// console.log(reordering_menu_alpha);
 		if (time_elapsed < fade_out_ms)
 		{
 			if (!beforeFirstOrderChangeAfterRefresh)
@@ -570,44 +570,21 @@ function DrawReorderingArea(c)
 		}
 
 
-		// This thing about the second change... I think it might not be needed now?
-		/*
-		oddlist2 = []
-		evenlist2 = []
-
-		for (let i = 0; i < cached_event_ordering.length; i++)
-		{
-			i % 2 == 0 ? evenlist2.push(cached_event_ordering[i]) : oddlist2.push(cached_event_ordering[i]);
-		}
-
-		changed2 = true;
-		if (oddlist_cached.length != 0)
-		{
-			for (let i = 0; i < 15; i++)
-			{
-				if(oddlist2[i]["index"] != oddlist_cached[i]["index"]) changed2 = false;
-			}
-			for (let i = 0; i < 15; i++)
-			{
-				if(evenlist2[i]["index"] != evenlist_cached[i]["index"]) changed2 = false;
-			}
-		}
-
-		// Limit the alpha to 0 until the alpha changes.
-		if (changed2 && beforefirstrefresh && beforefirstchange) {current_alpha = 0;}
-		*/
-
-
 		// Positioning and coloring code, don't have to worry about it.
 		ctx.fillStyle = "#eeeeee";
 
 		// Odd on top, even below.
 		const full_centering_location_y = 1188
-		const centering_location_y = full_centering_location_y / overall_height * startxy.height; 
+		var centering_location_y = full_centering_location_y / overall_height * startxy.height; 
 		font_height = 0;
 
-
 		var font_size = 40;
+
+		if (oddlist_cached.length != 0 && evenlist_cached != 0)
+		{
+			var oddIsCloser = oddlist_cached[0]["distance"] < evenlist_cached[0]["distance"];
+			centering_location_y = oddIsCloser ? centering_location_y + font_size * 1.5 : centering_location_y;
+		}
 
 		ctx.textAlign = 'left';
 
@@ -626,7 +603,14 @@ function DrawReorderingArea(c)
 		}
 
 		var font_size = 35;
+
 		starty = full_centering_location_y / overall_height * startxy.height - font_size * 1.5;
+		if (oddlist_cached.length != 0 && evenlist_cached != 0)
+		{
+			var oddIsCloser = oddlist_cached[0]["distance"] < evenlist_cached[0]["distance"];
+			starty = oddIsCloser ? starty + font_size * 1.5 : starty;
+		}
+
 		for (let i in oddlist_cached)
 		{
 			ctx.globalAlpha = clamp(clamp(current_alpha, 0, 1) - i * 0.05, 0, 1);
@@ -644,8 +628,8 @@ function DrawReorderingArea(c)
 
 		if (oddlist_cached.length != 0 && evenlist_cached != 0)
 		{
+			var closerEvent = oddIsCloser ? oddlist_cached[0] : evenlist_cached[0];
 			//console.log(oddlist_cached);
-			var closerEvent = Events[oddlist_cached[0]["index"]]["distance"] < Events[evenlist_cached[0]["index"]]["distance"] ? oddlist_cached[0] : evenlist_cached[0];
 			var index = closerEvent["index"];
 
 			// Draw the poem
@@ -965,12 +949,13 @@ function RedrawCanvas()
 
 function onFirstSetup()
 {
-
+	/*
 	for (var i = 0; i < Events.length; i++)
 	{
 		Events[i].X = Events[i].X + 1000;
 		Events[i].Y = Events[i].Y + 1000;
 	}
+	*/
 
 	console.log( "FirstSetup!" );
 	var c = document.getElementById("canvas");
@@ -1059,8 +1044,8 @@ function hitTextTest(c, mouse_pos_raw)
 			console.log("selected");
 			console.log(Events[i]["Name"]);
 			var coords = GetMouseCoordsFromBoxNormalizedCoords(c, 
-				Events[i]["X"] * event_coords_ratio / unity_width, 
-				Events[i]["Y"] * event_coords_ratio / unity_height)
+				Events[i]["X"] * event_coords_ratio / old_unity_width, 
+				Events[i]["Y"] * event_coords_ratio / old_unity_height)
 			mouse_inbox_target_pos_x = coords.x;
 			mouse_inbox_target_pos_y = coords.y;
 
