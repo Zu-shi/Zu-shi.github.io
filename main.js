@@ -31,7 +31,7 @@ var looking_glass = new Image();
 looking_glass.onload = function(){
 	RedrawCanvas();
 }
-looking_glass.src = 'Assets\\Looking Glass (with white haze).png';
+looking_glass.src = 'Assets\\Looking Glass (with white haze NEW).png';
 
 var unity = new Image();
 unity.onload = function(){
