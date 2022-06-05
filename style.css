@@ -72,3 +72,15 @@ body,html {
 * {
     box-sizing: border-box;
 }
+
+a:link, a:active, a:focus, a:visited {
+  color: white;
+}
+
+.credits {
+  position:absolute;
+  color: white;
+  bottom:0;
+  right:10px;
+  z-index: 50000;
+}
