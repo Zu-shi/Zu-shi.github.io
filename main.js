@@ -115,7 +115,7 @@ const fade_out_ms = 400
 const fade_in_ms = 400
 
 const switch_event_wait_time_ms = 9000
-const first_switch_event_wait_time_ms = 10000
+const first_switch_event_wait_time_ms = 2000
 var after_first_switch_event = false;
 var last_switch_time_ms = 0;
 var current_switch_time_index = 0;
@@ -719,17 +719,17 @@ function DrawScrollingBarArea(c)
     let unityPosX = normalizedPos.x * old_unity_width
     let unityPosY = normalizedPos.y * old_unity_height
 
-    cached_event_ordering = []
+    temp_event_ordering = []
     for (let i = 0; i < Events.length; i++)
     {
       // Note: distance is likely not needed here.
       var dist = GetDistance(Events[i]["X"] * event_coords_ratio, Events[i]["Y"] * event_coords_ratio, unityPosX, unityPosY);
       var item = {"index": i, "distance": dist};
-      cached_event_ordering.push(item);
+      temp_event_ordering.push(item);
     }
 
-    cached_event_ordering.sort((a,b) => (a.distance > b.distance) ? 1 : ((a.distance < b.distance) ? -1 : 0))
-    index = cached_event_ordering[0]["index"];
+    temp_event_ordering.sort((a,b) => (a.distance > b.distance) ? 1 : ((a.distance < b.distance) ? -1 : 0))
+    index = temp_event_ordering[0]["index"];
     current_hilbert_index = EventsIndexToHilbertMap[index];
 
     onClickText(c, current_hilbert_index);
