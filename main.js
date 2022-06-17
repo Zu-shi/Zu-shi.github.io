@@ -117,7 +117,7 @@ const fade_in_ms = 400
 const switch_event_wait_time_after_click_ms = 12000
 const switch_event_wait_time_ms = 9000
 const first_switch_event_wait_time_ms = 2000
-var just_clicked_event = false;
+var last_click_time_ms = 0;
 var after_first_switch_event = false;
 var last_switch_time_ms = 0;
 var current_switch_time_index = 0;
@@ -711,10 +711,9 @@ function DrawScrollingBarArea(c)
 
   let current_time_ms = Date.now();
   if (!after_first_switch_event && 
-    ((current_time_ms - out_of_box_time_ms > first_switch_event_wait_time_ms &&
-      current_time_ms - last_mouse_move_time_ms > first_switch_event_wait_time_ms && !just_clicked_event) || 
-      (current_time_ms - out_of_box_time_ms > switch_event_wait_time_after_click_ms &&
-    current_time_ms - last_mouse_move_time_ms > switch_event_wait_time_after_click_ms && just_clicked_event)) &&
+    (current_time_ms - out_of_box_time_ms > first_switch_event_wait_time_ms &&
+    current_time_ms - last_mouse_move_time_ms > first_switch_event_wait_time_ms && 
+    current_time_ms - last_click_time_ms > switch_event_wait_time_after_click_ms) &&
     !currently_in_box)
   {
 
@@ -944,7 +943,6 @@ function onMouseMove(e)
 	y = getMousePosition(e).y;
   
   after_first_switch_event = false;
-  just_clicked_event = false;
 
 	cachedEvent = e;
 	// Drawing stuff, consider moving to animation step
@@ -1237,7 +1235,7 @@ function hitTextTest(c, mouse_pos_raw)
 
 		if (mouse_x < box_right && mouse_x > box_left && mouse_y < box_bottom && mouse_y > box_top)
 		{
-      just_clicked_event = true;
+      last_click_time_ms = Date.now();
       onClickText(c, i);
 		}
 	}
