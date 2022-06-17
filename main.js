@@ -1,6 +1,9 @@
 // Todo: have a global that gets the x, y, width, height of preview box at any moment
 var Events = [{"Name":"Ground of Being","Poem":"There is a ground of being that all things grow from.\nThe ground is here and now","X":8258,"Y":2249,"Radius":1450},{"Name":"Wings in Self-Strum","Poem":"Chords carrying the Will of Quanta.\nThere is music that plays itself.","X":4666,"Y":2614,"Radius":1450},{"Name":"Wondercloud","Poem":"The Wondercloud holds an infinite number of stars. But you could only see that if you were all of them.\nHere wonder percipitates at the dew point of dreams.Look how it doooooo!","X":7747,"Y":2825,"Radius":940},{"Name":"Conversation of Quanta","Poem":"What there is has a lot to say, and always in familiar tone. Sopken in a language convergent toward common ground.\nThe ground of being, here and now.","X":959,"Y":3056,"Radius":940},{"Name":"Burst of Solar Structure","Poem":"Solar Structures Rise\nThe passing of forces in disguise","X":12199,"Y":2124,"Radius":940},{"Name":"Far Off Emergence","Poem":"Suddently it\u2019s Here\nThere it goes.","X":1069,"Y":1393,"Radius":940},{"Name":"Opalescence Presence","Poem":"Glimmering here, now\nIridescent and ever shifting","X":11261,"Y":1402,"Radius":940},{"Name":"Architecture","Poem":"Articulate designs hittings foundational notes]nThey hum in unison","X":4303,"Y":2268,"Radius":940},{"Name":"Unfathomable Quanta","Poem":"It is how it is measured\nHow strange","X":10602,"Y":4411,"Radius":940},{"Name":"Boundless Being","Poem":"Where thing becomes no-thing but thereness is undeniable.\nHere, thoughts take form where forms take thought.","X":8482,"Y":3225,"Radius":940},{"Name":"Layer and Structure","Poem":"The building of thing-ness. It is present when seen.\nWhen out of site, There is no speaking of it","X":3547,"Y":3580,"Radius":940},{"Name":"Here and Now","Poem":"A twist of fate always making history\nBut never bound by it","X":2564,"Y":1857,"Radius":940},{"Name":"Sub-Surface Covergence","Poem":"Segmented but congruent\nA localized expression of a universal whole.","X":2259,"Y":956,"Radius":940},{"Name":"In-Breath","Poem":"The awareness machine weaves consciousness\nIt\u2019s inbreath threading through and finding new.","X":11715,"Y":982,"Radius":940},{"Name":"Awareness Machine","Poem":"The Awareness Machine conjures it\u2019s pretend occurrence. A projected intention collides with Waveform.\nDestructive interference.","X":10015,"Y":1736,"Radius":940},{"Name":"Feminine Aspect","Poem":"It loves and nourishes all but does not lord it over them. When feats are accomplished it lays no claim to them.\n-Lao Tzu","X":10515,"Y":1700,"Radius":940},{"Name":"Convergence of Spirit","Poem":"the wafting of the wind sings a Song of the Soul. vibrations from waveforms expressing rhythms of the heart.\nThe seed of intention grows an undercurrent that always finds its way. A vision of Unity.","X":8441,"Y":2317,"Radius":940},{"Name":"Preceding Quanta","Poem":"the self-assembly finding base form.\nA spiral.","X":15399,"Y":958,"Radius":940},{"Name":"Out-Breath","Poem":"an outbreath pushes surrounding atmosphere creating currents.\nThe Preceding Quanta is self-assembling.","X":13543,"Y":1056,"Radius":940},{"Name":"Waves of Ether Into Base Quanta","Poem":"the wafting of fundamental essence\nCurrents in constant arrival.","X":14002,"Y":3433,"Radius":940},{"Name":"Proof of Sun","Poem":"Immense energy at work. Making poetry from earth","X":7595,"Y":1945,"Radius":550},{"Name":"Convergence Engine","Poem":"Nebulous matter seeks the Convergence Engine. By Courteously of constructive resonance.\nMatter takes form.","X":11323,"Y":2046,"Radius":550},{"Name":"Seed of Intention","Poem":"The Seed of Intention sprouts with the passing of a wave form. The frequency of interaction is ever evolving.\nThere is no predicting which way it will grow.","X":9476,"Y":2662,"Radius":550},{"Name":"Livid Life","Poem":"Livid with life, fresh and full of potential.\nThe possibility field is dense and teeming.","X":7904,"Y":757,"Radius":550},{"Name":"Dance of Duality","Poem":"The rise and origin of meaning. Here, the darkness is a function of the light.\nThe self-implying other. The elemental spirit of relativity","X":8628,"Y":1344,"Radius":550},{"Name":"Season of Artificial Intelligence","Poem":"Consciousness takes on yet another persona. A Season of Artififical Intelligence emerges\nas companion to Boundless Curiosity","X":7445,"Y":3397,"Radius":550},{"Name":"Life of Leaf","Poem":"The last leaf hangs on as a season of artificial intelegence begins.\nA Life line","X":6844,"Y":3444,"Radius":550},{"Name":"Open Hear","Poem":"It is the ear that envokes riviting sound from what would otherwise be sterile vibration\nHear it? Musical matters finding their way to an open ear. Can you hear it?","X":10816,"Y":3338,"Radius":550},{"Name":"Wave Form","Poem":"There is always waving. Wave back before it passes\nThe hand of phenomenon Always waving, Always passing","X":10295,"Y":1956,"Radius":550},{"Name":"Helix of Intertwining Self and Other","Poem":"The weaving of intnetions into words\nEchos of conversation transcending the boundaries of self and other.","X":6499,"Y":2547,"Radius":550},{"Name":"Friction Formula","Poem":"Coefficients of conflict play rough for a moment.A formula for friction emerges.\nA clash of matter-proving substance. Intimate entanlement","X":968,"Y":3383,"Radius":550},{"Name":"Fading Architecture, Entropy Affecter","Poem":"Transient architecture fading into elemental material.\nA pattern at its half-life.","X":4092,"Y":602,"Radius":550},{"Name":"Life Line","Poem":"A pluse.....between scilence.....a pulse.....","X":7577,"Y":3715,"Radius":550},{"Name":"Wisps of Sight","Poem":"seeking, seeing, making waves and currents in the see.","X":2364,"Y":3636,"Radius":550},{"Name":"Duality Bites","Poem":"Yin yang cookies, a staple of any diet.\nEven if you\u2019venever had them, you have!","X":10617,"Y":2196,"Radius":550},{"Name":"Dimensional Breach","Poem":"a lower dimensions spontaneous blink.\nThe information appears flat","X":6160,"Y":1388,"Radius":550},{"Name":"Horn of Musical Matters","Poem":"Winds reverberate the horn.\nMusical matters begin.","X":10202,"Y":2630,"Radius":550},{"Name":"Cloud Form","Poem":"The oceans baby producing the OG vape. The rain daddy. The river mama. The atmospheric sensation, lazing, hazing, AMAZING!\nThat Before the dreams take shape, they are diaphanous in form.","X":5050,"Y":1156,"Radius":550},{"Name":"The Floop of Fwee","Poem":"WEEEEEEEEEEEEEEEEEEEEEE!<3 XD!","X":5641,"Y":3975,"Radius":550},{"Name":"Luminous Wing","Poem":"A Luminous Wing gracing through deep blue.\nIt\u2019s shimmer comes in oscillations","X":6425,"Y":1785,"Radius":550},{"Name":"Boundless Being","Poem":"Where Thing becomes no-thing yet there-ness persists.\nThoughts take form where forms take thought.","X":8262,"Y":3375,"Radius":550},{"Name":"Song of the Soul","Poem":"A song of the soul plays over the convergence of spirit.\nHitting notes of unity.","X":8223,"Y":1737,"Radius":550},{"Name":"Diaphanous Games with Cumulous Intent","Poem":"A cumulous of intention is about to reach dew point.\nIt plays chords of constructive resonance to projected intentions.","X":11051,"Y":2246,"Radius":550},{"Name":"Airfoil","Poem":"Dynamics of deep blue lancing through to open air","X":6478,"Y":2004,"Radius":550},{"Name":"Sense Alchemy","Poem":"Sensational sorcery in action. New feelings are forged and pass through here every moment.\nThe awareness machine selects which ones will fuel the next projected intention.","X":9185,"Y":1533,"Radius":550},{"Name":"Sleek Curiosity","Poem":"Curiosities feel no friction here.\nAn eternal youthful game of inquiries.","X":8644,"Y":3121,"Radius":550},{"Name":"Pretend Occurrence","Poem":"The awareness machine conjures an image of the self. A cleverly selective guiding system. An ego playing pretend.\nA pretend occurrence who is a self-labeling master of nomenclature.","X":9855,"Y":1530,"Radius":550},{"Name":"Stratified Conscious Side","Poem":"The whirling  Dance of Duality stratifies meaning\nProof of dreaming","X":8777,"Y":1141,"Radius":550},{"Name":"Gestures of Rhythm","Poem":"The passing of Periotic Possibility\nWaving hello, Waning goodbye","X":6353,"Y":2843,"Radius":550},{"Name":"Flutter Form","Poem":"Form Flutters","X":4366,"Y":2595,"Radius":550},{"Name":"Feeling Fumes","Poem":"The exhaust of Sense Alchemy.\nA whiff for shift. Feel the lift?","X":9660,"Y":1935,"Radius":550},{"Name":"Vertex Convergence, Context Emergence","Poem":"Ribbons of texture come together under circumstance\nThere is conversation presiding over the Helix of Intertwining Self and Other","X":6719,"Y":2223,"Radius":550},{"Name":"Melodic Action","Poem":"While the high Octane experience is racing, melodic action turns the sound into song.\nTaking flight on a Luminous Wing","X":6737,"Y":1417,"Radius":550},{"Name":"Wedge of Transience","Poem":"Transience is wedged beneath the Tree of Life","X":7058,"Y":2468,"Radius":550},{"Name":"Wafts of Vision","Poem":"Responding to currents of sight\nSeeking, seeing, making waves and curents in the see","X":558,"Y":3893,"Radius":550},{"Name":"Twinkling \"I\"","Poem":"Spectral radiance from afar, captured by reaching eyes. When the stars shine so does \u201cI\u201d\nThe Twinckle Is in the \u201cI\u201d, Yours and Mine","X":6089,"Y":1679,"Radius":275},{"Name":"Wriggle of Spirit","Poem":"There is will, and there will be way","X":8653,"Y":1823,"Radius":275},{"Name":"Artifacts of spirit","Poem":"They find rhythum with Occam\u2019s Razor\nThe rest is up to song and dance","X":4966,"Y":2718,"Radius":275},{"Name":"The Grey","Poem":"Black and white come to an agreement.\nThe result is a grey area","X":6134,"Y":2414,"Radius":275},{"Name":"Frequent-See","Poem":"How often? How far between? Low or high?\nA frequent-see passes over the seed of intention.","X":9542,"Y":2686,"Radius":275},{"Name":"Motion-Forge Radical","Poem":"What it is cannot be spoken. Only available in motion\nA radical in passing","X":5776,"Y":2296,"Radius":275},{"Name":"Perk of Will","Poem":"Nestled against the seed of intention, it inherits streaking color\nA perk of will","X":9312,"Y":2484,"Radius":275},{"Name":"Illusive bridge","Poem":"A notion has found cause, A bridge to effect.\nThere is affect.","X":5756,"Y":1588,"Radius":275},{"Name":"Occam's Razor","Poem":"The sharp wit of reason,  simple and concise\nOn the weekends it joins the spirit of song and dance.","X":5144,"Y":2576,"Radius":275},{"Name":"Support Agent","Poem":"Form acting as a support agent to a cyclical Life Line","X":7069,"Y":3733,"Radius":275},{"Name":"The Shadow Self","Poem":"Brushes up against the seed of intention. Its ripple influencing the form of intention.\nThe Wave Form waves at ths flux in acknowledgement.","X":9940,"Y":2612,"Radius":275},{"Name":"The Point","Poem":"What is the point? this is it.\nHere it is, noow it is, this is it","X":8414,"Y":300,"Radius":275},{"Name":"Elemental Flux","Poem":"The constituents preceding sense alchemy.\nFleeting feeling, networking to get a feel of the senses.     ","X":9454,"Y":1373,"Radius":275},{"Name":"High Octane Experience","Poem":"Breaching into foreign fields, The raw experience sees the unseen, hears the unheard.\nA refreshing rate and resolution","X":6644,"Y":1144,"Radius":275},{"Name":"Shine Refinery","Poem":"Make it shine, make it fine\nMake it mine.","X":8547,"Y":2832,"Radius":275},{"Name":"Wink By Gleaming Glint","Poem":"Allured by feeling fumes\nA wriggling glit passes, giving a wink","X":9765,"Y":2094,"Radius":275},{"Name":"Cubic Kiss","Poem":"The Architect has calculated a kiss.\nFirmly planted and unwavering.","X":5009,"Y":2902,"Radius":275},{"Name":"Propagation Artifact","Poem":"A bloom of propagation,\nProlific intention gives arise to the Awareness Machine.","X":9447,"Y":1685,"Radius":275},{"Name":"Tree of Life","Poem":"The ground of being takes ascension with riveting growth.\nBeginning simple and growing complex. What is fruitful goes on","X":7112,"Y":2264,"Radius":275},{"Name":"Rhythm of Self-Assembly","Poem":"Growth takes form, playing a game of self-assembly.","X":6335,"Y":3511,"Radius":275},{"Name":"love Language","Poem":"Enchanted by the fumes of sense alchemy, an off shoot is intoxicated","X":8867,"Y":920,"Radius":275},{"Name":"Percussive Lifeforce","Poem":"A leap of faith, A Spring for life, A burst of force","X":7883,"Y":1407,"Radius":275},{"Name":"Charming Veneer","Poem":"Under cover of cute","X":5106,"Y":2193,"Radius":275},{"Name":"Space Thread","Poem":"It is space that implies substance. The Background that implies foreground\nThe self that implies the other, they are woven","X":7433,"Y":1395,"Radius":275}];
 var EventHitboxesNormalized = []
+var EventsHilbert = [];
+var EventsIndexToHilbertMap = {};
+
 console.log(Events);
 
 // box = 1374x334
@@ -110,6 +113,17 @@ const recheck_interval_ms = 100
 const wait_mouse_still_seconds_for_list_change = 200
 const fade_out_ms = 400
 const fade_in_ms = 400
+
+const switch_event_wait_time_ms = 9000
+const first_switch_event_wait_time_ms = 10000
+var after_first_switch_event = false;
+var last_switch_time_ms = 0;
+var current_switch_time_index = 0;
+var current_hilbert_index = 0;
+var switch_event_time_ms = 0
+// var first_switch_event_time_ms = 0
+var out_of_box_time_ms = 0
+
 let beforefirstchange = false;
 let beforesecondchange = false;
 let beforefirstrefresh = false;
@@ -406,6 +420,12 @@ function DrawReorderingArea(c)
 	
 	if (!IsInBox(c, mouse_unbounded_pos_x, mouse_unbounded_pos_y))
 	{
+    if (currently_in_box)
+    {
+      // Just moved out of box
+      out_of_box_time_ms = Date.now();
+    }
+
 		// console.log("out of box")
 		currently_in_box = false;
 		allowForOrderChange = false;
@@ -421,6 +441,7 @@ function DrawReorderingArea(c)
 	}
 	else
 	{
+    out_of_box_time_ms = Date.now(); // don't allow out of box move.
 		ordered_menu_poem_alpha_target = 0
 		clearTimeout(poem_change_timer);
 
@@ -686,6 +707,46 @@ function DrawScrollingBarArea(c)
 	DrawPoem(c, cached_poem_index, ordered_menu_poem_alpha);
 	DrawBox(c);
 
+  let current_time_ms = Date.now();
+  if (!after_first_switch_event && 
+    current_time_ms - out_of_box_time_ms > first_switch_event_wait_time_ms &&
+    current_time_ms - last_mouse_move_time_ms > first_switch_event_wait_time_ms &&
+    !currently_in_box)
+  {
+
+    let mouse = getMousePosition(cachedEvent);
+    let normalizedPos = GetNormalizedBoxCoordsFromMouseCoords(c, mouse_inbox_target_pos_x, mouse_inbox_target_pos_y);
+    let unityPosX = normalizedPos.x * old_unity_width
+    let unityPosY = normalizedPos.y * old_unity_height
+
+    cached_event_ordering = []
+    for (let i = 0; i < Events.length; i++)
+    {
+      // Note: distance is likely not needed here.
+      var dist = GetDistance(Events[i]["X"] * event_coords_ratio, Events[i]["Y"] * event_coords_ratio, unityPosX, unityPosY);
+      var item = {"index": i, "distance": dist};
+      cached_event_ordering.push(item);
+    }
+
+    cached_event_ordering.sort((a,b) => (a.distance > b.distance) ? 1 : ((a.distance < b.distance) ? -1 : 0))
+    index = cached_event_ordering[0]["index"];
+    current_hilbert_index = EventsIndexToHilbertMap[index];
+
+    onClickText(c, current_hilbert_index);
+    after_first_switch_event = true;
+    last_switch_time_ms = Date.now();
+  }
+
+  if (after_first_switch_event && 
+    current_time_ms - last_switch_time_ms > switch_event_wait_time_ms &&
+    current_time_ms - last_mouse_move_time_ms > switch_event_wait_time_ms &&
+    !currently_in_box)
+  {
+    current_hilbert_index += 1;
+    onClickText(c, EventsIndexToHilbertMap[current_hilbert_index % Events.length]);
+    last_switch_time_ms = Date.now();
+  }
+
 	var ctx = c.getContext("2d");
 	startxy = GetMainRegion(c);
 	r = startxy;
@@ -877,6 +938,9 @@ function onMouseMove(e)
 	var c = document.getElementById("canvas");
 	x = getMousePosition(e).x;
 	y = getMousePosition(e).y;
+  
+  after_first_switch_event = false;
+
 	cachedEvent = e;
 	// Drawing stuff, consider moving to animation step
 
@@ -959,6 +1023,7 @@ function onFirstSetup()
 
 	console.log( "FirstSetup!" );
 	var c = document.getElementById("canvas");
+  convertIndicesToHilbertOrder();
 	var coords = GetMouseCoordsFromBoxNormalizedCoords(c, 0.4517, 0.545)
 	mouse_inbox_target_pos_x = coords.x;
 	mouse_inbox_target_pos_y = coords.y;
@@ -1026,6 +1091,132 @@ function onMouseClick(e)
 
 var cached_poem_index = 0;
 var poem_change_timer = 0;
+
+
+
+/////////////////////////////////////////
+// Convert to hilbert spaces
+function rotate(point, rx, ry, n) {
+  if (ry !== 0) {
+    return;
+  }
+  if (rx === 1) {
+    point.x = n - 1 - point.x;
+    point.y = n - 1 - point.y;
+  }
+  [point.x, point.y] = [point.y, point.x];
+}
+
+function construct(data, order, pickRepresentative = pick.max) {
+  if (!Array.isArray(data)) {
+    data = Array.from(data);
+  }
+  // order for full, uncompressed curve
+  const orderFull = Math.ceil(Math.log2(Math.sqrt(data.length)));
+  if (order === undefined || order >= orderFull) {
+    return _construct(data, orderFull);
+  } else {
+    const n = 2 ** order;
+    const binned = bin(data, n * n, pickRepresentative);
+    return _construct(binned, order);
+  }
+}
+
+function _construct(data, order) {
+  const n = 2 ** order;
+  const curve = new Array(n * n);
+  // TODO assert data.length <= curve.length
+  for (let index = 0; index < data.length; index += 1) {
+    const point = indexToPoint(index, order);
+    curve[offset(point.x, point.y, n)] = data[index];
+  }
+  return curve;
+}
+
+function offset(column, row, width) {
+  return row * width + column;
+}
+
+function indexToPoint(index, order) {
+  const n = 2 ** order;
+  const point = { x: 0, y: 0 };
+  let rx, ry, s;
+  for (let s = 1, t = index; s < n; s *= 2) {
+    rx = 1 & (t / 2);
+    ry = 1 & (t ^ rx);
+    rotate(point, rx, ry, s);
+    point.x += s * rx;
+    point.y += s * ry;
+    t /= 4;
+  }
+  return point;
+}
+
+function pointToIndex(point, order) {
+  const n = 2 ** order;
+  let rx,
+    ry,
+    index = 0;
+  for (let s = n / 2; s > 0; s = Math.floor(s / 2)) {
+    rx = (point.x & s) > 0 ? 1 : 0;
+    ry = (point.y & s) > 0 ? 1 : 0;
+    index += s * s * ((3 * rx) ^ ry);
+    rotate(point, rx, ry, n);
+  }
+  return index;
+}
+
+/////////////////////////////////////////////////////////////////////
+
+
+function convertIndicesToHilbertOrder()
+{
+  order = 5;
+  // Break the events into 2 ^ order sections horizontal and vertical.
+  EventsHilbert = JSON.parse(JSON.stringify(Events));
+  division = 2 ** order;
+
+  for (i = 0; i < EventsHilbert.length; i++)
+  {
+    var xSnap = Math.floor(EventsHilbert[i]["X"] / (old_unity_width / division));
+    var ySnap = Math.floor(EventsHilbert[i]["Y"] / (old_unity_height / division));
+    EventsHilbert[i]["xSnap"] = xSnap;
+    EventsHilbert[i]["ySnap"] = ySnap;
+    EventsHilbert[i]["index"] = i;
+    EventsHilbert[i]["ordering"] = pointToIndex({x: xSnap,y: ySnap}, order);
+  }
+
+  EventsHilbert.sort((a,b) => (a.ordering > b.ordering) ? 1 : ((a.ordering < b.ordering) ? -1 : 0))
+  for (i = 0; i < EventsHilbert.length; i++)
+  {
+    EventsIndexToHilbertMap[EventsHilbert[i]["index"]] = i;
+  }
+  console.log(EventsHilbert);
+}
+
+
+function onClickText(c, i)
+{
+  console.log("selected");
+  console.log(Events[i]["Name"]);
+  var coords = GetMouseCoordsFromBoxNormalizedCoords(c, 
+    Events[i]["X"] * event_coords_ratio / old_unity_width, 
+    Events[i]["Y"] * event_coords_ratio / old_unity_height)
+  mouse_inbox_target_pos_x = coords.x;
+  mouse_inbox_target_pos_y = coords.y;
+
+  ordered_menu_poem_alpha_target = 0
+  clearTimeout(poem_change_timer);
+  poem_change_timer = setTimeout(
+    function(index){
+      ordered_menu_poem_alpha_target = 1;
+      console.log(ordered_menu_poem_alpha_target);
+      cached_poem_index = index;}, 
+      800, 
+      i
+  );
+}
+
 function hitTextTest(c, mouse_pos_raw)
 {
 	mouse_x = convertHtmlDistanceToNormalizedDistanceX(c, mouse_pos_raw.x)
@@ -1041,22 +1232,7 @@ function hitTextTest(c, mouse_pos_raw)
 
 		if (mouse_x < box_right && mouse_x > box_left && mouse_y < box_bottom && mouse_y > box_top)
 		{
-			console.log("selected");
-			console.log(Events[i]["Name"]);
-			var coords = GetMouseCoordsFromBoxNormalizedCoords(c, 
-				Events[i]["X"] * event_coords_ratio / old_unity_width, 
-				Events[i]["Y"] * event_coords_ratio / old_unity_height)
-			mouse_inbox_target_pos_x = coords.x;
-			mouse_inbox_target_pos_y = coords.y;
-
-
-			ordered_menu_poem_alpha_target = 0
-			clearTimeout(poem_change_timer);
-			poem_change_timer = setTimeout(
-				function(index){
-					ordered_menu_poem_alpha_target = 1;
-					console.log(ordered_menu_poem_alpha_target);
-					cached_poem_index = index;}, 800, i);
+      onClickText(c, i);
 		}
 	}
 }
